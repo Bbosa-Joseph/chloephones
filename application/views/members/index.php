@@ -97,6 +97,7 @@
                                 </div>
                                 <div class="modal-footer">
                                 <form action="<?php echo base_url('Controller_Members/delete/'.$v['user_info']['id']) ?>" method="post">
+                                <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
                              
                               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                <input type="submit" class="btn btn-danger" name="confirm" value="Delete">

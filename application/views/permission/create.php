@@ -43,6 +43,7 @@
           <?php endif; ?>
 
             <form role="form" action="<?php base_url('Controller_Permission/create') ?>" method="post">
+              <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
               <div class="box-body">
 
                 <?php echo validation_errors(); ?>

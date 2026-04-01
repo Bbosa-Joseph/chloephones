@@ -94,6 +94,7 @@
       </div>
 
       <form role="form" action="<?php echo base_url('Controller_Warehouse/create') ?>" method="post" id="createForm">
+        <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
 
         <div class="modal-body">
 
@@ -147,6 +148,7 @@
       </div>
 
       <form role="form" action="<?php echo base_url('Controller_Warehouse/update') ?>" method="post" id="updateForm">
+        <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
 
         <div class="modal-body">
           <div id="messages"></div>
@@ -199,6 +201,7 @@
       </div>
 
       <form role="form" action="<?php echo base_url('Controller_Warehouse/remove') ?>" method="post" id="removeForm">
+        <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
         <div class="modal-body">
           <p>Do you really want to remove?</p>
         </div>

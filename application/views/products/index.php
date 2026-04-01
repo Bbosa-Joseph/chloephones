@@ -104,6 +104,7 @@
         <h4 class="modal-title">Remove Product</h4>
       </div>
       <form id="removeForm" action="<?php echo base_url('Controller_Products/remove') ?>" method="post">
+        <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
         <input type="hidden" name="product_id" id="product_id" value="">
         <div class="modal-body"><p>Do you really want to remove?</p></div>
         <div class="modal-footer">

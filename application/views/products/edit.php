@@ -40,6 +40,7 @@
       </div>
 
       <form role="form" action="<?php echo base_url('Controller_Products/update/'.$product_data['id']); ?>" method="post">
+        <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
         <div class="box-body">
           <?php echo validation_errors(); ?>
 

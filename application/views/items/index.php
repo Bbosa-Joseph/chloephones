@@ -82,6 +82,7 @@
       </div>
 
       <form role="form" action="<?php echo base_url('Controller_Items/create') ?>" method="post" id="createBrandForm">
+        <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
 
         <div class="modal-body">
 
@@ -122,6 +123,7 @@
       </div>
 
       <form role="form" action="<?php echo base_url('Controller_Items/update') ?>" method="post" id="updateBrandForm">
+        <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
 
         <div class="modal-body">
           <div id="messages"></div>
@@ -164,6 +166,7 @@
       </div>
 
       <form role="form" action="<?php echo base_url('Controller_Items/remove') ?>" method="post" id="removeBrandForm">
+        <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
         <div class="modal-body">
           <p>Do you really want to Delete?</p>
         </div>

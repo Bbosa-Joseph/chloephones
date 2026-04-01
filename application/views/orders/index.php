@@ -94,6 +94,7 @@
       </div>
 
       <form role="form" action="<?php echo base_url('Controller_Orders/remove') ?>" method="post" id="removeForm">
+        <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
         <div class="modal-body">
           <p>Do you really want to remove?</p>
         </div>
