@@ -1,0 +1,30 @@
+# Vendor / Composer
+/vendor/
+composer.phar
+composer.lock
+
+# CodeIgniter logs & cache
+application/logs/*.php
+application/logs/*.log
+!application/logs/index.html
+application/cache/*
+!application/cache/index.html
+
+# Environment / config overrides
+.env
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Uploads (optional — uncomment if you don't want to track product images)
+# assets/images/product_image/*
+# !assets/images/product_image/index.html
