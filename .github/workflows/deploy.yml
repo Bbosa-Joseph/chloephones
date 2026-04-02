@@ -18,7 +18,7 @@ jobs:
           host: ${{ secrets.CPANEL_HOST }}
           username: ${{ secrets.CPANEL_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
+          port: 2222
           script: |
             cd ~/domains/chloephonecenter.com/public_html
             GIT_SSH_COMMAND="ssh -i ~/.ssh/chloe_rsa" git pull origin main
