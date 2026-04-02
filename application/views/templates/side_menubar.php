@@ -1,7 +1,7 @@
 <aside class="main-sidebar ui-main-sidebar">
     <section class="sidebar">
         <div class="ui-sidebar-panel">
-            <div class="ui-sidebar-brand">
+            <div class="ui-sidebar-brand ui-sidebar-brand--mobile-only">
                 <div class="ui-sidebar-brand-icon">
                     <img src="<?php echo base_url('assets/images/product_image/chloe.png'); ?>" alt="Chloe">
                 </div>
@@ -42,7 +42,7 @@
             <li class="treeview" id="mainProductNav">
                 <a href="#">
                     <i class="fa fa-cube"></i>
-                    <span>Products</span>
+                    <span>Stock</span>
                     <span class="pull-right-container"><i class="fa fa-angle-right pull-right"></i></span>
                 </a>
                 <ul class="treeview-menu">
@@ -50,7 +50,7 @@
                     <li id="addProductNav">
                         <a href="<?php echo base_url('Controller_Products/create'); ?>">
                             <i class="fa fa-circle-o"></i>
-                            <span>Add Product</span>
+                            <span>Add Stock</span>
                         </a>
                     </li>
                     <?php endif; ?>
@@ -58,7 +58,7 @@
                     <li id="manageProductNav">
                         <a href="<?php echo base_url('Controller_Products'); ?>">
                             <i class="fa fa-circle-o"></i>
-                            <span>Manage Products</span>
+                            <span>Manage Stock</span>
                         </a>
                     </li>
                     <?php endif; ?>
@@ -78,7 +78,7 @@
                     <li id="addOrderNav">
                         <a href="<?php echo base_url('Controller_Orders/create'); ?>">
                             <i class="fa fa-circle-o"></i>
-                            <span>Add Order</span>
+                            <span>Make Receipt</span>
                         </a>
                     </li>
                     <?php endif; ?>
@@ -86,7 +86,7 @@
                     <li id="manageOrdersNav">
                         <a href="<?php echo base_url('Controller_Orders'); ?>">
                             <i class="fa fa-circle-o"></i>
-                            <span>Manage Orders</span>
+                            <span>Manage Receipt</span>
                         </a>
                     </li>
                     <?php endif; ?>
@@ -98,7 +98,7 @@
             <li class="treeview" id="mainUserNav">
                 <a href="#">
                     <i class="fa fa-users"></i>
-                    <span>Members</span>
+                    <span>Branch Admin</span>
                     <span class="pull-right-container"><i class="fa fa-angle-right pull-right"></i></span>
                 </a>
                 <ul class="treeview-menu">
@@ -106,7 +106,7 @@
                     <li id="createUserNav">
                         <a href="<?php echo base_url('Controller_Members/create'); ?>">
                             <i class="fa fa-circle-o"></i>
-                            <span>Add Members</span>
+                            <span>Add Branch Admin</span>
                         </a>
                     </li>
                     <?php endif; ?>
@@ -114,7 +114,7 @@
                     <li id="manageUserNav">
                         <a href="<?php echo base_url('Controller_Members'); ?>">
                             <i class="fa fa-circle-o"></i>
-                            <span>Manage Members</span>
+                            <span>Manage Branch Admin</span>
                         </a>
                     </li>
                     <?php endif; ?>

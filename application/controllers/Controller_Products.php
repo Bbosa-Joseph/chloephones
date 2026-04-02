@@ -48,10 +48,13 @@ public function fetchProductData()
             if(in_array('updateProduct', $this->permission)) {
                 $buttons .= '<a href="'.base_url('Controller_Products/update/'.$value['id']).'" class="btn btn-warning btn-sm"><i class="fa fa-pencil"></i></a>';
             }
+            if(in_array('createOrder', $this->permission)) {
+                $buttons .= ' <a href="'.base_url('Controller_Orders/create?imei='.urlencode($value['imei'])).'" class="btn btn-info btn-sm" title="Print Receipt"><i class="fa fa-print"></i></a>';
+            }
             if(in_array('deleteProduct', $this->permission)) { 
                 $buttons .= ' <button type="button" class="btn btn-danger btn-sm" onclick="removeFunc('.$value['id'].')" data-toggle="modal" data-target="#removeModal"><i class="fa fa-trash"></i></button>';
             }
-            $availability = ($value['availability'] == 1) ? '<span class="label label-success">Active</span>' : '<span class="label label-warning">Inactive</span>';
+            $availability = ($value['availability'] == 1) ? 'In Stock' : 'Out of Stock';
             if (isset($value['warehouse_id']) && $value['warehouse_id']) {
                 $store = $this->model_stores->getStoresData($value['warehouse_id']);
                 $warehouse_name = $store ? $store['name'] : 'Unassigned';
@@ -112,10 +115,8 @@ public function create()
             'price' => $this->input->post('price'),
             'description' => $this->input->post('description'),
             'storage' => $this->input->post('storage'),
+            'ram' => $this->input->post('ram'),
             'warehouse_id' => $this->input->post('warehouse_id'),
-            // 'attribute_value_id' => json_encode($this->input->post('attributes_value_id')),
-            // 'brand_id' => json_encode($this->input->post('brands')),
-            // 'category_id' => json_encode($this->input->post('category')),
             'availability' => $this->input->post('availability'),
             'date_added' => date('Y-m-d'),
         );
@@ -212,11 +213,8 @@ public function create()
                 'price' => $this->input->post('price'),
                 'description' => $this->input->post('description'),
                 'storage' => $this->input->post('storage'),
+                'ram' => $this->input->post('ram'),
                 'warehouse_id' => $this->input->post('warehouse_id'),
-                // 'attribute_value_id' => json_encode($this->input->post('attributes_value_id')),
-                // 'brand_id' => json_encode($this->input->post('brands')),
-                // 'category_id' => json_encode($this->input->post('category')),
-                // 'store_id' => $this->input->post('store'),
                 'availability' => $this->input->post('availability'),
             );
 

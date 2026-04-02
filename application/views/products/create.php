@@ -66,82 +66,74 @@
 
 <?php echo validation_errors(); ?>
 
-
-<div class="form-group">
-<label>Phone Model</label>
-<input type="text" 
-class="form-control" 
-name="product_name"
-placeholder="Example: Samsung A14"
-required>
+<div class="row">
+  <div class="col-md-6">
+    <div class="form-group">
+      <label>Phone Model</label>
+      <input type="text" class="form-control" name="product_name" placeholder="Example: Samsung A14" required>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="form-group">
+      <label>IMEI Number</label>
+      <input type="text" class="form-control" name="imei" placeholder="Enter IMEI" required>
+    </div>
+  </div>
 </div>
 
-
-<div class="form-group">
-<label>IMEI Number</label>
-<input type="text"
-class="form-control"
-name="imei"
-placeholder="Enter IMEI"
-required>
+<div class="row">
+  <div class="col-md-6">
+    <div class="form-group">
+      <label>Storage (GB)</label>
+      <input type="number" class="form-control" name="storage" placeholder="e.g. 128">
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="form-group">
+      <label>RAM (GB)</label>
+      <input type="number" class="form-control" name="ram" placeholder="e.g. 4">
+    </div>
+  </div>
 </div>
 
-
-<div class="form-group">
-<label>Price (UGX)</label>
-<input type="number"
-class="form-control"
-name="price"
-placeholder="Enter Price"
-required>
+<div class="row">
+  <div class="col-md-6">
+    <div class="form-group">
+      <label>Price (UGX)</label>
+      <input type="number" class="form-control" name="price" placeholder="Enter Price" required>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="form-group">
+      <label>Assign Warehouse</label>
+      <select class="form-control" name="warehouse_id">
+        <option value="">-- Select Warehouse --</option>
+        <?php if(isset($warehouses) && is_array($warehouses)): ?>
+          <?php foreach($warehouses as $wh): ?>
+            <option value="<?php echo $wh['id']; ?>"><?php echo htmlspecialchars($wh['name']); ?></option>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </select>
+    </div>
+  </div>
 </div>
 
-
-
-<div class="form-group">
-<label>Storage (GB)</label>
-<input type="number"
-class="form-control"
-name="storage"
-placeholder="Enter Storage (e.g. 128)"
->
+<div class="row">
+  <div class="col-md-6">
+    <div class="form-group">
+      <label>Availability</label>
+      <select class="form-control" name="availability">
+        <option value="1">Available</option>
+        <option value="2">Not Available</option>
+      </select>
+    </div>
+  </div>
 </div>
 
 <div class="form-group">
-<label>Assign Warehouse (optional)</label>
-<select class="form-control" name="warehouse_id">
-  <option value="">-- Select Warehouse --</option>
-  <?php if(isset($warehouses) && is_array($warehouses)): ?>
-    <?php foreach($warehouses as $wh): ?>
-      <option value="<?php echo $wh['id']; ?>"><?php echo htmlspecialchars($wh['name']); ?></option>
-    <?php endforeach; ?>
-  <?php endif; ?>
-</select>
+  <label>Description</label>
+  <textarea class="form-control" id="description" name="description" rows="3" placeholder="Optional notes"></textarea>
 </div>
-
-
-<div class="form-group">
-<textarea
-class="form-control"
-id="description"
-name="description"
-rows="3"
-placeholder="Optional notes"></textarea>
-</div>
-
-
-<div class="form-group">
-<label>Availability</label>
-
-<select class="form-control" name="availability">
-
-<option value="1">Available</option>
-<option value="2">Not Available</option>
-
-</select>
-
-</div>
-
 
 </div>
 

@@ -39,7 +39,7 @@ class Model_orders extends CI_Model
 		$user_id = $this->session->userdata('id');
 
 		// receipt number
-		$bill_no = 'REC-'.date('YmdHis');
+		$bill_no = 'N0:'.date('YmdHis');
 
     	$data = array(
     		'bill_no' => $bill_no,

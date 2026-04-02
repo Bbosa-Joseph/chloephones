@@ -18,7 +18,7 @@
       margin: 0;
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(220, 53, 69, 0.16), transparent 34%),
+        radial-gradient(circle at top left, rgba(79, 70, 229, 0.16), transparent 34%),
         radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.06), transparent 28%),
         linear-gradient(135deg, #141925 0%, #1c2333 45%, #101620 100%);
       color: #111827;
@@ -68,8 +68,8 @@
       padding: 54px 48px;
       color: #fff;
       background:
-        linear-gradient(160deg, rgba(142, 22, 37, 0.96) 0%, rgba(210, 46, 67, 0.92) 55%, rgba(241, 101, 120, 0.88) 100%),
-        linear-gradient(135deg, #8f1625 0%, #d72f44 100%);
+        linear-gradient(160deg, rgba(55, 48, 163, 0.96) 0%, rgba(79, 70, 229, 0.92) 55%, rgba(129, 120, 248, 0.88) 100%),
+        linear-gradient(135deg, #3730a3 0%, #4f46e5 100%);
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -223,7 +223,7 @@
     .mobile-brand .brand-logo {
       width: 52px;
       height: 52px;
-      background: linear-gradient(135deg, #8f1625 0%, #d72f44 100%);
+      background: linear-gradient(135deg, #3730a3 0%, #4f46e5 100%);
       box-shadow: none;
     }
 
@@ -248,7 +248,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1.8px;
-      color: #d72f44;
+      color: #4f46e5;
     }
 
     .login-form-header h2 {
@@ -268,10 +268,10 @@
 
     .login-alert {
       border: none;
-      border-left: 4px solid #d72f44;
+      border-left: 4px solid #4f46e5;
       border-radius: 12px;
-      background: #fff3f4;
-      color: #8f1625;
+      background: #eef2ff;
+      color: #3730a3;
       padding: 14px 16px;
       margin-bottom: 22px;
     }
@@ -321,10 +321,10 @@
     }
 
     .login-input:focus {
-      border-color: #d72f44;
+      border-color: #4f46e5;
       background: #fff;
       outline: none;
-      box-shadow: 0 0 0 4px rgba(215, 47, 68, 0.12);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
     }
 
     .login-input::-webkit-input-placeholder {
@@ -349,12 +349,12 @@
       margin-top: 10px;
       border: none;
       border-radius: 14px;
-      background: linear-gradient(135deg, #b91c31 0%, #d72f44 55%, #ef5d72 100%);
+      background: linear-gradient(135deg, #3730a3 0%, #4f46e5 55%, #7c3aed 100%);
       color: #fff;
       font-size: 15px;
       font-weight: 700;
       letter-spacing: 0.3px;
-      box-shadow: 0 16px 30px rgba(215, 47, 68, 0.25);
+      box-shadow: 0 16px 30px rgba(79, 70, 229, 0.25);
       transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     }
 
@@ -362,7 +362,7 @@
     .btn-login:focus {
       color: #fff;
       transform: translateY(-1px);
-      box-shadow: 0 20px 34px rgba(215, 47, 68, 0.3);
+      box-shadow: 0 20px 34px rgba(79, 70, 229, 0.3);
       opacity: 0.98;
       outline: none;
     }

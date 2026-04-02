@@ -228,10 +228,7 @@ $(document).ready(function() {
 
   // initialize the datatable 
   manageTable = $('#manageTable').DataTable({
-    dom: 'Bfrtip',
-        buttons: [
-            'copy', 'csv', 'excel', 'print'
-        ], 
+    dom: 'frtip',
     'ajax': 'fetchStoresData',
     'order': []
   });

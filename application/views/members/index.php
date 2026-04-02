@@ -144,10 +144,7 @@
   <script>
 $(document).ready(function() {
     $('#userTable').DataTable({
-        dom: 'Bfrtip',
-        buttons: [
-            'copy', 'csv', 'excel', 'print'
-        ],
+        dom: 'frtip',
         responsive: true,
         paging: true,
         pageLength: 10,

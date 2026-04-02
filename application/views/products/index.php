@@ -1,9 +1,5 @@
 <!-- views/product/index.php -->
 
-<link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
-
 <div class="content-wrapper">
   <section class="content-header">
     <h1>Manage Products</h1>
@@ -65,22 +61,24 @@
                   <option value="Aged">Aged</option>
                 </select>
               </div>
+              <div class="col-sm-3 col-xs-6" style="margin-bottom:8px;">
+                <div id="filterSearchWrap"></div>
+              </div>
             </div>
           </div>
           <div class="box-body" style="overflow-x:auto;">
-            <table id="manageTable" class="table table-bordered table-hover table-striped nowrap" style="width:100%; min-width:700px;">
+            <table id="manageTable" class="table table-bordered table-hover table-striped nowrap" style="width:100%;">
               <thead>
                 <tr>
                   <?php if(in_array('deleteProduct', $user_permission)): ?>
                     <th style="width:30px;"><input type="checkbox" id="selectAll"></th>
                   <?php endif; ?>
-                  <th class="hide-mobile" style="width: 50px;">ID</th>
                   <th style="width: 120px;">Product</th>
-                  <th class="hide-mobile">IMEI</th>
+                  <th>IMEI</th>
                   <th>Price</th>
                   <th>Warehouse</th>
                   <th class="hide-mobile">Availability</th>
-                  <th>Stock Status</th>
+                  <th>Ages</th>
                   <?php if(in_array('updateProduct', $user_permission) || in_array('deleteProduct', $user_permission)): ?>
                     <th>Action</th>
                   <?php endif; ?>
@@ -134,15 +132,6 @@
 <?php endif; ?>
 
 <!-- Scripts -->
-<script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.flash.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.print.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
 
 <script>
 $(document).ready(function() {
@@ -152,33 +141,27 @@ $(document).ready(function() {
   var colOffset = hasCheckbox ? 1 : 0;
 
   var manageTable = $('#manageTable').DataTable({
-    dom: 'Bfrtip',
-    buttons: ['copy','csv','excel','print'],
-    responsive: false,
+    dom: 'frtip',
+    responsive: true,
     columnDefs: [
-      { targets: 0 + colOffset, width: '50px', className: 'hide-mobile', render: function(data, type, row) {
+      { targets: 0 + colOffset, width: '120px', render: function(data, type, row) {
           return '<span class="truncate" title="'+data+'">'+data+'</span>';
         }
       },
-      { targets: 1 + colOffset, width: '120px', render: function(data, type, row) {
+      { targets: 1 + colOffset, render: function(data, type, row) {
           return '<span class="truncate" title="'+data+'">'+data+'</span>';
         }
       },
-      { targets: 2 + colOffset, render: function(data, type, row) {
-          return '<span class="truncate" title="'+data+'">'+data+'</span>';
-        }, className: 'hide-mobile' },
-      { targets: 4 + colOffset, render: function(data, type, row) {
+      { targets: 3 + colOffset, render: function(data, type, row) {
           return '<span class="truncate" title="'+data+'">'+data+'</span>';
         }
       },
-      { targets: 5 + colOffset, className: 'hide-mobile' },
-      { targets: 6 + colOffset, render: function(data, type, row) {
-          // Show only In Stock or Out of Stock
-          if(row.availability && row.availability.indexOf('Active') !== -1) {
-            return '<span class="label label-success">In Stock</span>';
-          } else {
-            return '<span class="label label-danger">Out of Stock</span>';
-          }
+      { targets: 4 + colOffset, className: 'hide-mobile' },
+      { targets: 5 + colOffset, visible: false, render: function(data, type, row) {
+          var addedDate = new Date(data);
+          var today = new Date();
+          var diffDays = Math.floor((today - addedDate)/(1000*60*60*24));
+          return diffDays >= 15 ? 'Aged' : 'Fresh';
         }
       }
     ],
@@ -192,7 +175,6 @@ $(document).ready(function() {
       <?php if(in_array('deleteProduct', $user_permission)): ?>
       { data: 'id', orderable: false, searchable: false, render: function(data){ return '<input type="checkbox" class="row-check" value="'+data+'">'; } },
       <?php endif; ?>
-      { data: 'id' },
       { data: 'name' },
       { data: 'imei' },
       { data: 'price' },
@@ -226,18 +208,24 @@ $(document).ready(function() {
         $(row).addClass('aged-row');
       }
     },
+    initComplete: function() {
+      var filter = $('#manageTable_filter');
+      $('#filterSearchWrap').html(filter);
+      $('#manageTable_filter').addClass('text-right');
+      $('#manageTable_filter input').addClass('input-sm form-control').attr('placeholder', 'Search products');
+    },
     order: []
   });
 
   // Custom column filters
   $('#filterWarehouse').on('change', function(){
-    manageTable.column(4 + colOffset).search(this.value).draw();
+    manageTable.column(3 + colOffset).search(this.value).draw();
   });
   $('#filterAvailability').on('change', function(){
-    manageTable.column(5 + colOffset).search(this.value).draw();
+    manageTable.column(4 + colOffset).search(this.value).draw();
   });
   $('#filterStockAge').on('change', function(){
-    manageTable.column(6 + colOffset).search(this.value).draw();
+    manageTable.column(5 + colOffset).search(this.value).draw();
   });
 
   // Bulk selection

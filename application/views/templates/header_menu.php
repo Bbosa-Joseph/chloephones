@@ -7,18 +7,6 @@
   $page_heading = !empty($page_title) ? $page_title : 'Dashboard';
 ?>
 <header class="main-header">
-  <a href="<?php echo base_url('dashboard'); ?>" class="logo ui-app-logo">
-    <span class="logo-mini">
-      <img src="<?php echo base_url('assets/images/product_image/chloe.png'); ?>" alt="Chloe">
-    </span>
-    <span class="logo-lg">
-      <span class="ui-app-logo-mark">
-        <img src="<?php echo base_url('assets/images/product_image/chloe2.png'); ?>" alt="Chloe">
-      </span>
-      <span class="ui-app-logo-text">Chloe Inventory</span>
-    </span>
-  </a>
-
   <nav class="navbar navbar-static-top ui-topbar" role="navigation">
     <a href="#" class="sidebar-toggle ui-sidebar-toggle" role="button" aria-label="Toggle navigation">
       <i class="fa fa-bars"></i>

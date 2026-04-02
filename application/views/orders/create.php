@@ -63,9 +63,9 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="gross_amount" class="col-sm-5 control-label" style="text-align:left;">Client Address</label>
+                    <label for="gross_amount" class="col-sm-5 control-label" style="text-align:left;">NIN No</label>
                     <div class="col-sm-7">
-                      <textarea type="text" class="form-control" id="customer_address" name="customer_address" placeholder="Enter Client Address" autocomplete="off"></textarea>
+                      <textarea type="text" class="form-control" id="customer_address" name="customer_address" placeholder="Enter NIN No" autocomplete="off"></textarea>
                     </div>
                   </div>
 
@@ -90,9 +90,8 @@
                 <table class="table table-bordered" id="product_info_table">
                   <thead>
                     <tr>
-                      <th style="width:60%">Product</th>
-                      <th style="width:15%">Rate</th>
-                      <th style="width:25%">Amount</th>
+                      <th style="width:70%">Product</th>
+                      <th style="width:20%">Amount</th>
                       <th style="width:10%"><button type="button" id="add_row" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></button></th>
                     </tr>
                   </thead>
@@ -106,9 +105,6 @@
                               <option value="<?php echo $v['id'] ?>"><?php echo $v['name'] ?></option>
                             <?php endforeach ?>
                           </select>
-                        </td>
-                        <td>
-                          <input type="text" name="rate[]" id="rate_1" class="form-control" disabled autocomplete="off">
                           <input type="hidden" name="rate_value[]" id="rate_value_1" class="form-control" autocomplete="off">
                         </td>
                         <td>
@@ -122,48 +118,15 @@
 
                 <br /> <br/>
 
-                <div class="col-md-6 col-xs-12 pull pull-left">
-
-                  <div class="form-group">
-                    <label for="gross_amount" class="col-sm-5 control-label">Gross Amount</label>
-                    <div class="col-sm-7">
-                      <input type="text" class="form-control" id="gross_amount" name="gross_amount" disabled autocomplete="off">
-                      <input type="hidden" class="form-control" id="gross_amount_value" name="gross_amount_value" autocomplete="off">
-                    </div>
-                  </div>
-                  <?php if($is_service_enabled == true): ?>
-                  <div class="form-group">
-                    <label for="service_charge" class="col-sm-5 control-label">S-Charge <?php echo $company_data['service_charge_value'] ?> %</label>
-                    <div class="col-sm-7">
-                      <input type="text" class="form-control" id="service_charge" name="service_charge" disabled autocomplete="off">
-                      <input type="hidden" class="form-control" id="service_charge_value" name="service_charge_value" autocomplete="off">
-                    </div>
-                  </div>
-                  <?php endif; ?>
-                  <?php if($is_vat_enabled == true): ?>
-                  <div class="form-group">
-                    <label for="vat_charge" class="col-sm-5 control-label">Vat <?php echo $company_data['vat_charge_value'] ?> %</label>
-                    <div class="col-sm-7">
-                      <input type="text" class="form-control" id="vat_charge" name="vat_charge" disabled autocomplete="off">
-                      <input type="hidden" class="form-control" id="vat_charge_value" name="vat_charge_value" autocomplete="off">
-                    </div>
-                  </div>
-                  <?php endif; ?>
-                  <div class="form-group">
-                    <label for="discount" class="col-sm-5 control-label">Discount</label>
-                    <div class="col-sm-7">
-                      <input type="text" class="form-control" id="discount" name="discount" placeholder="Discount" onkeyup="subAmount()" autocomplete="off">
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="net_amount" class="col-sm-5 control-label">Net Amount</label>
-                    <div class="col-sm-7">
-                      <input type="text" class="form-control" id="net_amount" name="net_amount" disabled autocomplete="off">
-                      <input type="hidden" class="form-control" id="net_amount_value" name="net_amount_value" autocomplete="off">
-                    </div>
-                  </div>
-
-                </div>
+                <input type="hidden" id="gross_amount" name="gross_amount" autocomplete="off">
+                <input type="hidden" id="gross_amount_value" name="gross_amount_value" autocomplete="off">
+                <input type="hidden" id="service_charge" name="service_charge" autocomplete="off">
+                <input type="hidden" id="service_charge_value" name="service_charge_value" autocomplete="off">
+                <input type="hidden" id="vat_charge" name="vat_charge" autocomplete="off">
+                <input type="hidden" id="vat_charge_value" name="vat_charge_value" autocomplete="off">
+                <input type="hidden" id="discount" name="discount" value="0" autocomplete="off">
+                <input type="hidden" id="net_amount" name="net_amount" autocomplete="off">
+                <input type="hidden" id="net_amount_value" name="net_amount_value" autocomplete="off">
               </div>
               <!-- /.box-body -->
 
@@ -197,6 +160,12 @@
 
     $("#mainOrdersNav").addClass('active');
     $("#addOrderNav").addClass('active');
+    $('#imei_input').focus();
+
+    var printCompleted = <?php echo json_encode($this->input->get('printed', true)); ?>;
+    if(printCompleted === '1' && typeof showToast === 'function') {
+      showToast('Print Completed', 'success');
+    }
     
     var btnCust = '<button type="button" class="btn btn-secondary" title="Add picture tags" ' + 
         'onclick="alert(\'Call your custom code here.\')">' +
@@ -225,9 +194,8 @@
                         });
                         
                       html += '</select>'+
+                    '<input type="hidden" name="rate_value[]" id="rate_value_'+row_id+'" class="form-control">'+
                     '</td>'+ 
-                    // Quantity column removed
-                    '<td><input type="text" name="rate[]" id="rate_'+row_id+'" class="form-control" disabled><input type="hidden" name="rate_value[]" id="rate_value_'+row_id+'" class="form-control"></td>'+
                     '<td><input type="text" name="amount[]" id="amount_'+row_id+'" class="form-control" disabled><input type="hidden" name="amount_value[]" id="amount_value_'+row_id+'" class="form-control"></td>'+
                     '<td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(\''+row_id+'\')"><i class="fa fa-close"></i></button></td>'+
                     '</tr>';
@@ -251,7 +219,7 @@
 
   function getTotal(row = null) {
     if(row) {
-      var total = Number($("#rate_value_"+row).val()) * Number($("#qty_"+row).val());
+      var total = Number($("#rate_value_"+row).val());
       total = total.toFixed(2);
       $("#amount_"+row).val(total);
       $("#amount_value_"+row).val(total);
@@ -263,33 +231,64 @@
     }
   }
 
+  function isProductAlreadyInOrder(productId, excludeRowId) {
+    var exists = false;
+    var normalizedProductId = String(productId);
+
+    $("#product_info_table .product").each(function() {
+      var currentId = $(this).val();
+      if(!currentId) return;
+
+      var currentRowId = $(this).attr('id').split('_')[1];
+      if(excludeRowId && String(currentRowId) === String(excludeRowId)) {
+        return;
+      }
+
+      if(String(currentId) === normalizedProductId) {
+        exists = true;
+      }
+    });
+
+    return exists;
+  }
+
+  function showDuplicateImeiWarning() {
+    var message = 'IMEI already added in this order.';
+    if(typeof showToast === 'function') {
+      showToast(message, 'warning');
+    } else {
+      alert(message);
+    }
+  }
+
   // get the product information from the server
   function getProductData(row_id)
   {
     var product_id = $("#product_"+row_id).val();    
     if(product_id == "") {
-      $("#rate_"+row_id).val("");
       $("#rate_value_"+row_id).val("");
-
-      $("#qty_"+row_id).val("");           
 
       $("#amount_"+row_id).val("");
       $("#amount_value_"+row_id).val("");
 
     } else {
+      if(isProductAlreadyInOrder(product_id, row_id)) {
+        $("#product_"+row_id).val("").trigger('change.select2');
+        $("#rate_value_"+row_id).val("");
+        $("#amount_"+row_id).val("");
+        $("#amount_value_"+row_id).val("");
+        showDuplicateImeiWarning();
+        subAmount();
+        return;
+      }
+
       $.ajax({
         url: base_url + 'Controller_Orders/getProductValueById',
         type: 'post',
         data: {product_id : product_id},
         dataType: 'json',
         success:function(response) {
-          // setting the rate value into the rate input field
-          
-          $("#rate_"+row_id).val(response.price);
           $("#rate_value_"+row_id).val(response.price);
-
-          $("#qty_"+row_id).val(1);
-          $("#qty_value_"+row_id).val(1);
 
           var total = Number(response.price) * 1;
           total = total.toFixed(2);
@@ -338,26 +337,19 @@
     // total amount
     var totalAmount = (Number(totalSubAmount) + Number(vat) + Number(service));
     totalAmount = totalAmount.toFixed(2);
-    // $("#net_amount").val(totalAmount);
-    // $("#totalAmountValue").val(totalAmount);
-
-    var discount = $("#discount").val();
-    if(discount) {
-      var grandTotal = Number(totalAmount) - Number(discount);
-      grandTotal = grandTotal.toFixed(2);
-      $("#net_amount").val(grandTotal);
-      $("#net_amount_value").val(grandTotal);
-    } else {
-      $("#net_amount").val(totalAmount);
-      $("#net_amount_value").val(totalAmount);
-      
-    } // /else discount 
+    $("#net_amount").val(totalAmount);
+    $("#net_amount_value").val(totalAmount);
 
   } // /sub total amount
 
 // auto add product row function
 
   function addProductToOrder(product) {
+    if(isProductAlreadyInOrder(product.id, null)) {
+      showDuplicateImeiWarning();
+      return;
+    }
+
     var table = $("#product_info_table");
     var count_table_tbody_tr = $("#product_info_table tbody tr").length;
     var row_id = count_table_tbody_tr + 1;
@@ -367,9 +359,8 @@
         '<select class="form-control select_group product" data-row-id="'+row_id+'" id="product_'+row_id+'" name="product[]" style="width:100%;" onchange="getProductData('+row_id+')">'+
             '<option value="'+product.id+'" selected>'+product.name+'</option>'+
         '</select>'+
+      '<input type="hidden" name="rate_value[]" id="rate_value_'+row_id+'" class="form-control" value="'+product.price+'">'+
         '</td>'+ 
-        '<td><input type="number" name="qty[]" id="qty_'+row_id+'" class="form-control" value="1" onkeyup="getTotal('+row_id+')"></td>'+
-        '<td><input type="text" name="rate[]" id="rate_'+row_id+'" class="form-control" disabled value="'+product.price+'"><input type="hidden" name="rate_value[]" id="rate_value_'+row_id+'" class="form-control" value="'+product.price+'"></td>'+
         '<td><input type="text" name="amount[]" id="amount_'+row_id+'" class="form-control" disabled value="'+product.price+'"><input type="hidden" name="amount_value[]" id="amount_value_'+row_id+'" class="form-control" value="'+product.price+'"></td>'+
         '<td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(\''+row_id+'\')"><i class="fa fa-close"></i></button></td>'+
         '</tr>';
@@ -390,42 +381,30 @@
   {
     $("#product_info_table tbody tr#row_"+tr_id).remove();
     subAmount();
-      }
-          $('#imei_input').on('change', function() {
-        let imei = $(this).val();
-        $.post('<?=base_url("Controller_Orders/getProductByIMEI")?>', {imei: imei}, function(res){
-            res = JSON.parse(res);
-            if(res.status == 'success') {
-                // Add product to order table
-                addProductToOrder(res.data);
-            } else {
-                alert(res.message);
-            }
-        });
-    });  
-    
-    $('#imei_input').on('change', function() {
-    let imei = $(this).val();
+  }
+
+  function loadProductByImei(imei) {
     if(!imei) return;
 
     $.post('<?=base_url("Controller_Orders/getProductByIMEI")?>', {imei: imei}, function(res){
-        res = JSON.parse(res);
-        if(res.status == 'success') {
-            // Add product to order table
-            addProductToOrder(res.data); // you’ll need a function to insert a new row
-        } else {
-            alert(res.message);
-        }
+      res = JSON.parse(res);
+      if(res.status == 'success') {
+        addProductToOrder(res.data);
+        $('#imei_input').val('').focus();
+      } else {
+        alert(res.message);
+      }
     });
-});
+  }
+
+  $('#imei_input').off('change').on('change', function() {
+    loadProductByImei($(this).val());
+  });
+
+  var quickReceiptImei = <?php echo json_encode($this->input->get('imei', true)); ?>;
+  if(quickReceiptImei) {
+    $('#imei_input').val(quickReceiptImei);
+    loadProductByImei(quickReceiptImei);
+  }
 
 </script>
-<script type="text/javascript" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.flash.min.js"></script>
-
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.print.min.js"></script>

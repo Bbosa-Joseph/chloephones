@@ -56,7 +56,6 @@ class Controller_Orders extends Admin_Controller
 
 			if(in_array('viewOrder', $this->permission)) {
 				$buttons .= '<a target="__blank" href="'.base_url('Controller_Orders/printDiv/'.$value['id']).'" class="btn btn-primary btn-sm" title="Print"><i class="fa fa-print"></i></a>';
-				$buttons .= ' <a href="'.base_url('Controller_Orders/downloadPDF/'.$value['id']).'" class="btn btn-success btn-sm" title="Download PDF"><i class="fa fa-file-pdf-o"></i></a>';
 			}
 
 			if(in_array('updateOrder', $this->permission)) {
@@ -107,12 +106,17 @@ class Controller_Orders extends Admin_Controller
 		
 	
         if ($this->form_validation->run() == TRUE) {        	
+			$duplicate_imeis = $this->_getDuplicateOrderImeis($this->input->post('product'));
+			if (!empty($duplicate_imeis)) {
+				$this->session->set_flashdata('errors', 'Duplicate IMEI in this order: ' . implode(', ', $duplicate_imeis));
+				redirect('Controller_Orders/create/', 'refresh');
+			}
         	
         	$order_id = $this->model_orders->create();
         	
         	if($order_id) {
         		$this->session->set_flashdata('success', 'Successfully created');
-        		redirect('Controller_Orders/update/printDiv/'.$order_id, 'refresh');
+				redirect('Controller_Orders/printDiv/'.$order_id.'?from=create', 'refresh');
         	}
         	else {
         		$this->session->set_flashdata('errors', 'Error occurred!!');
@@ -179,6 +183,11 @@ class Controller_Orders extends Admin_Controller
 		
 	
         if ($this->form_validation->run() == TRUE) {        	
+			$duplicate_imeis = $this->_getDuplicateOrderImeis($this->input->post('product'));
+			if (!empty($duplicate_imeis)) {
+				$this->session->set_flashdata('errors', 'Duplicate IMEI in this order: ' . implode(', ', $duplicate_imeis));
+				redirect('Controller_Orders/update/'.$id, 'refresh');
+			}
         	
         	$update = $this->model_orders->update($id);
         	
@@ -300,13 +309,48 @@ class Controller_Orders extends Admin_Controller
     }
 }
 
+private function _getDuplicateOrderImeis($product_ids)
+{
+	if (!is_array($product_ids) || empty($product_ids)) {
+		return array();
+	}
+
+	$normalized_ids = array();
+	foreach ($product_ids as $product_id) {
+		$product_id = (int) $product_id;
+		if ($product_id > 0) {
+			$normalized_ids[] = $product_id;
+		}
+	}
+
+	if (empty($normalized_ids)) {
+		return array();
+	}
+
+	$id_counts = array_count_values($normalized_ids);
+	$duplicate_imeis = array();
+
+	foreach ($id_counts as $product_id => $count) {
+		if ($count > 1) {
+			$product = $this->model_products->getProductData($product_id);
+			if (!empty($product['imei'])) {
+				$duplicate_imeis[] = $product['imei'];
+			} else {
+				$duplicate_imeis[] = 'Product ID ' . $product_id;
+			}
+		}
+	}
+
+	return $duplicate_imeis;
+}
+
 	/*
 	* It gets the product id and fetch the order data. 
 	* The order print logic is done here 
 	*/
 	public function printDiv($id)
 {
-    if(!in_array('viewOrder', $this->permission)) {
+		if(!in_array('viewOrder', $this->permission) && !in_array('createOrder', $this->permission)) {
         redirect('dashboard', 'refresh');
     }
     
@@ -318,8 +362,10 @@ class Controller_Orders extends Admin_Controller
         $order_date = date('d/m/Y H:i', $order_data['date_time']);
         $paid_status = ($order_data['paid_status'] == 1) ? "Paid" : "Unpaid";
         $served_by = $this->session->userdata('username');
+		$from_create = $this->input->get('from', true);
+		$return_url = ($from_create === 'create') ? base_url('Controller_Orders/create?printed=1') : '';
 
-        $html = $this->_buildReceiptHtml($order_data, $orders_items, $company_info, $order_date, $served_by, true);
+		$html = $this->_buildReceiptHtml($order_data, $orders_items, $company_info, $order_date, $served_by, true, $return_url);
         echo $html;
     }
 }
@@ -343,7 +389,7 @@ public function downloadPDF($id)
         $order_date = date('d/m/Y H:i', $order_data['date_time']);
         $served_by = $this->session->userdata('username');
 
-        $html = $this->_buildReceiptHtml($order_data, $orders_items, $company_info, $order_date, $served_by, false);
+		$html = $this->_buildReceiptHtml($order_data, $orders_items, $company_info, $order_date, $served_by, false, '');
 
         $options = new \Dompdf\Options();
         $options->set('isRemoteEnabled', true);
@@ -362,8 +408,14 @@ public function downloadPDF($id)
 /*
 * Build receipt HTML (shared between print and PDF)
 */
-private function _buildReceiptHtml($order_data, $orders_items, $company_info, $order_date, $served_by, $auto_print = true)
+private function _buildReceiptHtml($order_data, $orders_items, $company_info, $order_date, $served_by, $auto_print = true, $return_url = '')
 {
+		$logo_url = base_url('assets/images/product_image/chloe2.png');
+		$return_js = '';
+		if ($auto_print && !empty($return_url)) {
+			$return_js = '<script>window.onafterprint = function(){ window.location.href = "'. $return_url .'"; };</script>';
+		}
+
         $html = '<!DOCTYPE html>
 	<html>
 	<head>
@@ -372,32 +424,35 @@ private function _buildReceiptHtml($order_data, $orders_items, $company_info, $o
 	<title>Receipt</title>
 	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 	<style>
-	body { font-family: "Inter", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; color: #0f172a; background: #f1f5f9; }
-	.invoice { max-width: 480px; margin: 30px auto; padding: 28px 22px; border-radius: 14px; border: 1.5px solid #4f46e5; background: #fff; box-shadow: 0 4px 16px rgba(79,70,229,0.10); }
-	.invoice-header { text-align: center; margin-bottom: 18px; }
-	.invoice-header h1 { text-transform: uppercase; font-size: 32px; font-weight: 700; letter-spacing: 1px; color: #4f46e5; margin-bottom: 6px; }
-	.invoice-header p { font-size: 15px; color: #64748b; margin: 2px 0 6px 0; }
-	.invoice-header small { font-size: 15px; color: #94a3b8; }
-	.invoice-meta, .invoice-items, .invoice-totals { margin-bottom: 18px; }
-	.invoice-meta div { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 2px; }
+	body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; color: #1f2937; background: #e5e7eb; }
+	.invoice { max-width: 520px; margin: 24px auto; padding: 24px 22px; border-radius: 12px; border: 1px solid #cbd5e1; background: #ffffff; box-shadow: 0 8px 26px rgba(15,23,42,0.10); }
+	.invoice-header { text-align: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 2px solid #0f4c81; }
+	.brand { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+	.brand-logo { width: 62px; height: 62px; object-fit: contain; border-radius: 10px; border: 1px solid #cbd5e1; padding: 5px; background: #fff; }
+	.brand-text h1 { text-transform: uppercase; font-size: 20px; font-weight: 700; letter-spacing: 0.6px; color: #0f4c81; margin: 0 0 2px 0; }
+	.brand-text p { font-size: 12px; color: #475569; margin: 0; }
+	.receipt-date { margin-top: 8px; font-size: 12px; color: #334155; }
+	.invoice-meta, .invoice-items, .invoice-totals { margin-bottom: 16px; }
+	.section-title { display: block; font-size: 12px; font-weight: 700; color: #0f4c81; margin: 8px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+	.invoice-meta div { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
 	.invoice-meta div span:first-child { color: #64748b; }
-	.invoice-items table { width: 100%; border-collapse: collapse; font-size: 15px; }
-	.invoice-items th, .invoice-items td { padding: 10px 8px; }
-	.invoice-items th { border-bottom: 2px solid #4f46e5; text-transform: uppercase; font-weight: 600; text-align: left; background: #eef2ff; color: #4f46e5; }
+	.invoice-items table { width: 100%; border-collapse: collapse; font-size: 14px; }
+	.invoice-items th, .invoice-items td { padding: 8px 6px; }
+	.invoice-items th { border-bottom: 2px solid #0f4c81; text-transform: uppercase; font-weight: 700; text-align: left; background: #e8f0f8; color: #0f4c81; font-size: 12px; letter-spacing: 0.3px; }
 	.invoice-items td { border-bottom: 1px solid #e2e8f0; vertical-align: top; }
-	.invoice-items td .small { font-size: 13px; color: #64748b; }
-	.imei-code { font-size: 17px; font-weight: 700; color: #0f172a; letter-spacing: 0.5px; display: inline-block; margin-top: 2px; }
-	.invoice-totals div { display: flex; justify-content: space-between; font-weight: 700; font-size: 17px; color: #4f46e5; }
-	.invoice-footer { text-align: center; font-size: 14px; margin-top: 22px; color: #64748b; }
-	.invoice-footer .served-by { margin-top: 10px; padding: 8px 16px; background: #eef2ff; border-radius: 8px; display: inline-block; font-size: 13px; font-weight: 600; color: #4f46e5; }
+	.invoice-items td .small { font-size: 12px; color: #64748b; }
+	.imei-code { font-size: 14px; font-weight: 600; color: #1f2937; display: inline-block; margin-top: 2px; }
+	.invoice-totals div { display: flex; justify-content: space-between; font-weight: 700; font-size: 18px; color: #0f4c81; border-top: 2px solid #0f4c81; padding-top: 10px; }
+	.invoice-footer { text-align: center; font-size: 13px; margin-top: 20px; color: #64748b; }
+	.invoice-footer .served-by { margin-top: 10px; padding: 7px 14px; background: #e8f0f8; border-radius: 6px; display: inline-block; font-size: 12px; font-weight: 600; color: #0f4c81; }
 	@media print {
 		body { background: #fff; }
 		.invoice { border: none; box-shadow: none; }
 		.receipt-actions { display: none; }
 	}
-	.receipt-actions { text-align: center; margin: 20px auto; max-width: 480px; }
+	.receipt-actions { text-align: center; margin: 20px auto; max-width: 520px; }
 	.receipt-actions .btn { display: inline-block; padding: 10px 24px; margin: 0 6px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; color: #fff; }
-	.receipt-actions .btn-print { background: #4f46e5; }
+	.receipt-actions .btn-print { background: #0f4c81; }
 	.receipt-actions .btn-pdf { background: #059669; }
 	.receipt-actions .btn:hover { opacity: 0.9; }
 	</style>
@@ -411,16 +466,22 @@ private function _buildReceiptHtml($order_data, $orders_items, $company_info, $o
 
 	<div class="invoice">
 		<div class="invoice-header">
-			<h1>'. $company_info['company_name'] .'</h1>
-			<p>chlophonecenter@gmail.com</p>
-			<small>Date: '. $order_date .'</small>
+			<div class="brand">
+				<img src="'. $logo_url .'" alt="Company Logo" class="brand-logo">
+				<div class="brand-text">
+					<h1>Chlo Phone Center</h1>
+					<p>Sales Receipt</p>
+				</div>
+			</div>
+			<div class="receipt-date">Date: '. $order_date .'</div>
 		</div>
 
 		<div class="invoice-meta">
-			<div><span>Bill ID:</span> <span>'. $order_data['bill_no'] .'</span></div>
+			<div><span>Receipt No:</span> <span>'. $order_data['bill_no'] .'</span></div>
+			<div class="section-title">Customer Details</div>
 			<div><span>Customer:</span> <span>'. $order_data['customer_name'] .'</span></div>
 			<div><span>Contact:</span> <span>'. $order_data['customer_phone'] .'</span></div>
-			<div><span>Address:</span> <span>'. $order_data['customer_address'] .'</span></div>
+			<div><span>NIN No:</span> <span>'. $order_data['customer_address'] .'</span></div>
 		</div>
 
 		<div class="invoice-items">
@@ -428,6 +489,7 @@ private function _buildReceiptHtml($order_data, $orders_items, $company_info, $o
 				<thead>
 					<tr>
 						<th>Item Description</th>
+						<th class="text-right">Qty</th>
 						<th class="text-right">Amount</th>
 					</tr>
 				</thead>
@@ -435,16 +497,22 @@ private function _buildReceiptHtml($order_data, $orders_items, $company_info, $o
 
 				foreach ($orders_items as $item) {
 					$product = $this->model_products->getProductData($item['product_id']);
-					$storage = !empty($product['storage']) ? 'Storage: ' . $product['storage'] . ' GB' : '';
+					$ram_size = '';
+					if (isset($product['ram']) && $product['ram'] !== '') {
+						$ram_size = 'RAM: ' . $product['ram'] . ' GB';
+					} elseif (!empty($product['storage'])) {
+						$ram_size = 'RAM: ' . $product['storage'] . ' GB';
+					}
 					// $warehouse = !empty($product['warehouse_name']) ? 'Warehouse: ' . $product['warehouse_name'] : '';
 					$imei = $product['imei'];
 
 					$html .= '<tr>
 						<td>
 							<strong>'. $product['name'] .'</strong><br>
-							'. ($storage ? '<small>'. $storage .'</small><br>' : '') .'
+							'. ($ram_size ? '<small>'. $ram_size .'</small><br>' : '') .'
 							<span class="imei-code">IMEI: '. $imei .'</span>
 						</td>
+						<td class="text-right">01</td>
 						<td class="text-right">'. number_format($item['amount'], 0) .' UGX</td>
 					</tr>';
 				}
@@ -464,6 +532,7 @@ private function _buildReceiptHtml($order_data, $orders_items, $company_info, $o
 		</div>
 	</div>
 
+	'. $return_js .'
 	</body>
 </html>';
 

@@ -44,56 +44,73 @@
         <div class="box-body">
           <?php echo validation_errors(); ?>
 
-          <!-- Phone Model -->
-          <div class="form-group">
-            <label>Phone Model</label>
-            <input type="text" class="form-control" name="product_name" value="<?php echo $product_data['name']; ?>" required>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Phone Model</label>
+                <input type="text" class="form-control" name="product_name" value="<?php echo $product_data['name']; ?>" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>IMEI Number</label>
+                <input type="text" class="form-control" name="imei" value="<?php echo $product_data['imei']; ?>" required>
+              </div>
+            </div>
           </div>
 
-          <!-- IMEI Number editable -->
-          <div class="form-group">
-            <label>IMEI Number</label>
-            <input type="text" class="form-control" name="imei" value="<?php echo $product_data['imei']; ?>" required>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Storage (GB)</label>
+                <input type="number" class="form-control" name="storage" value="<?php echo isset($product_data['storage']) ? $product_data['storage'] : ''; ?>" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>RAM (GB)</label>
+                <input type="number" class="form-control" name="ram" value="<?php echo isset($product_data['ram']) ? $product_data['ram'] : ''; ?>">
+              </div>
+            </div>
           </div>
 
-          <!-- Phone Storage -->
-          <div class="form-group">
-            <label>Storage (GB)</label>
-            <input type="number" class="form-control" name="storage" value="<?php echo isset($product_data['storage']) ? $product_data['storage'] : ''; ?>" required>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Price (UGX)</label>
+                <input type="number" class="form-control" name="price" value="<?php echo $product_data['price']; ?>" required>
+              </div>
+            </div>
           </div>
 
-          <!-- Price -->
-          <div class="form-group">
-            <label>Price (UGX)</label>
-            <input type="number" class="form-control" name="price" value="<?php echo $product_data['price']; ?>" required>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Assign Warehouse</label>
+                <select class="form-control" name="warehouse_id" required>
+                  <option value="">-- Select Warehouse --</option>
+                  <?php foreach($warehouses as $wh): ?>
+                    <option value="<?php echo $wh['id']; ?>" <?php if($product_data['warehouse_id']==$wh['id']) echo 'selected'; ?>>
+                      <?php echo htmlspecialchars($wh['name']); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Availability</label>
+                <select class="form-control" name="availability">
+                  <option value="1" <?php if($product_data['availability']==1){echo "selected";} ?>>Available</option>
+                  <option value="2" <?php if($product_data['availability']==2){echo "selected";} ?>>Not Available</option>
+                </select>
+              </div>
+            </div>
           </div>
 
-          <!-- Assign Warehouse -->
-          <div class="form-group">
-            <label>Assign Warehouse</label>
-            <select class="form-control" name="warehouse_id" required>
-              <option value="">-- Select Warehouse --</option>
-              <?php foreach($warehouses as $wh): ?>
-                <option value="<?php echo $wh['id']; ?>" <?php if($product_data['warehouse_id']==$wh['id']) echo 'selected'; ?>>
-                  <?php echo htmlspecialchars($wh['name']); ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-
-          <!-- Description -->
           <div class="form-group">
             <label>Description</label>
             <textarea class="form-control" id="description" name="description" rows="3"><?php echo $product_data['description']; ?></textarea>
-          </div>
-
-          <!-- Availability -->
-          <div class="form-group">
-            <label>Availability</label>
-            <select class="form-control" name="availability">
-              <option value="1" <?php if($product_data['availability']==1){echo "selected";} ?>>Available</option>
-              <option value="2" <?php if($product_data['availability']==2){echo "selected";} ?>>Not Available</option>
-            </select>
           </div>
 
         </div>
