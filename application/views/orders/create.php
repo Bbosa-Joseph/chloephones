@@ -92,7 +92,7 @@
                     <tr>
                       <th style="width:70%">Product</th>
                       <th style="width:20%">Amount</th>
-                      <th style="width:10%"><button type="button" id="add_row" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></button></th>
+                      <th style="width:10%"></th>
                     </tr>
                   </thead>
 
@@ -285,46 +285,7 @@
       $.ajax({
         url: base_url + 'Controller_Orders/getProductValueById',
         type: 'post',
-        data: {product_id : product_id},
-        dataType: 'json',
-        success:function(response) {
-          $("#rate_value_"+row_id).val(response.price);
-
-          var total = Number(response.price) * 1;
-          total = total.toFixed(2);
-          $("#amount_"+row_id).val(total);
-          $("#amount_value_"+row_id).val(total);
-          
-          subAmount();
-        } // /success
-      }); // /ajax function to fetch the product data 
-    }
-  }
-
-  // calculate the total amount of the order
-  function subAmount() {
-    var service_charge = <?php echo ($company_data['service_charge_value'] > 0) ? $company_data['service_charge_value']:0; ?>;
-    var vat_charge = <?php echo ($company_data['vat_charge_value'] > 0) ? $company_data['vat_charge_value']:0; ?>;
-
-    var tableProductLength = $("#product_info_table tbody tr").length;
-    var totalSubAmount = 0;
-    for(x = 0; x < tableProductLength; x++) {
-      var tr = $("#product_info_table tbody tr")[x];
-      var count = $(tr).attr('id');
-      count = count.substring(4);
-
-      totalSubAmount = Number(totalSubAmount) + Number($("#amount_"+count).val());
-    } // /for
-
-    totalSubAmount = totalSubAmount.toFixed(2);
-
-    // sub total
-    $("#gross_amount").val(totalSubAmount);
-    $("#gross_amount_value").val(totalSubAmount);
-
-    // vat
-    var vat = (Number($("#gross_amount").val())/100) * vat_charge;
-    vat = vat.toFixed(2);
+      // Removed add_row button and JS for single product only
     $("#vat_charge").val(vat);
     $("#vat_charge_value").val(vat);
 

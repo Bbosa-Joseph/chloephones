@@ -40,15 +40,7 @@
         </div>
 
         <div class="row dashboard-stats-row">
-          <div class="col-lg-3 col-sm-6">
-            <a href="<?php echo base_url('Controller_Orders/') ?>" class="dashboard-stat-card dashboard-stat-card--success">
-              <span class="dashboard-stat-card__icon"><i class="fa fa-dollar"></i></span>
-              <div class="dashboard-stat-card__content">
-                <span class="dashboard-stat-card__label">Total Revenue</span>
-                <h3 class="dashboard-stat-card__value"><?php echo number_format($totalRevenue ?? 0); ?></h3>
-              </div>
-            </a>
-          </div>
+          <!-- Total Revenue widget removed -->
 
           <div class="col-lg-3 col-sm-6">
             <a href="<?php echo base_url('Controller_Products/') ?>" class="dashboard-stat-card dashboard-stat-card--primary">
@@ -60,15 +52,7 @@
             </a>
           </div>
 
-          <div class="col-lg-3 col-sm-6">
-            <a href="<?php echo base_url('Controller_Brands/') ?>" class="dashboard-stat-card dashboard-stat-card--violet">
-              <span class="dashboard-stat-card__icon"><i class="fa fa-tags"></i></span>
-              <div class="dashboard-stat-card__content">
-                <span class="dashboard-stat-card__label">Brands</span>
-                <h3 class="dashboard-stat-card__value"><?php echo $total_brands; ?></h3>
-              </div>
-            </a>
-          </div>
+          <!-- Brands widget removed -->
 
           <div class="col-lg-3 col-sm-6">
             <a href="<?php echo base_url('Controller_Members/') ?>" class="dashboard-stat-card dashboard-stat-card--warning">
@@ -80,25 +64,9 @@
             </a>
           </div>
 
-          <div class="col-lg-4 col-sm-6">
-            <a href="<?php echo base_url('Controller_Orders/') ?>" class="dashboard-stat-card dashboard-stat-card--emerald">
-              <span class="dashboard-stat-card__icon"><i class="fa fa-check"></i></span>
-              <div class="dashboard-stat-card__content">
-                <span class="dashboard-stat-card__label">Paid Orders</span>
-                <h3 class="dashboard-stat-card__value"><?php echo $total_paid_orders; ?></h3>
-              </div>
-            </a>
-          </div>
+          <!-- Paid Orders widget removed -->
 
-          <div class="col-lg-4 col-sm-6">
-            <a href="<?php echo base_url('Controller_Orders/') ?>" class="dashboard-stat-card dashboard-stat-card--danger">
-              <span class="dashboard-stat-card__icon"><i class="fa fa-warning"></i></span>
-              <div class="dashboard-stat-card__content">
-                <span class="dashboard-stat-card__label">Unpaid Orders</span>
-                <h3 class="dashboard-stat-card__value"><?php echo $unpaidOrders; ?></h3>
-              </div>
-            </a>
-          </div>
+          <!-- Unpaid Orders widget removed -->
 
           <div class="col-lg-4 col-sm-12">
             <a href="<?php echo base_url('Controller_Warehouse/') ?>" class="dashboard-stat-card dashboard-stat-card--indigo">
@@ -121,15 +89,7 @@
               </div>
             </div>
           </div>
-          <div class="col-lg-4 col-sm-6">
-            <a href="<?php echo base_url('Controller_Products/') ?>" class="dashboard-stat-card dashboard-stat-card--danger">
-              <span class="dashboard-stat-card__icon"><i class="fa fa-exclamation-triangle"></i></span>
-              <div class="dashboard-stat-card__content">
-                <span class="dashboard-stat-card__label">Out of Stock</span>
-                <h3 class="dashboard-stat-card__value"><?php echo $out_of_stock ?? 0; ?></h3>
-              </div>
-            </a>
-          </div>
+          <!-- Out of Stock widget removed -->
           <div class="col-lg-4 col-sm-6">
             <a href="<?php echo base_url('Controller_Products/') ?>" class="dashboard-stat-card dashboard-stat-card--warning">
               <span class="dashboard-stat-card__icon"><i class="fa fa-clock-o"></i></span>
@@ -178,32 +138,7 @@
             </div>
           </div>
 
-          <div class="col-lg-4">
-            <div class="dashboard-panel dashboard-panel--compact">
-              <div class="dashboard-panel__header">
-                <div>
-                  <h3 class="dashboard-panel__title">Monthly Summary</h3>
-                  <p class="dashboard-panel__subtitle">Current month snapshot</p>
-                </div>
-              </div>
-
-              <div class="dashboard-summary">
-                <div class="dashboard-summary__item">
-                  <span class="dashboard-summary__label">Sales Count</span>
-                  <strong class="dashboard-summary__value"><?php echo $monthSales; ?></strong>
-                </div>
-
-                <div class="dashboard-summary__item">
-                  <span class="dashboard-summary__label">Revenue</span>
-                  <strong class="dashboard-summary__value"><?php echo number_format($monthRevenue ?? 0); ?></strong>
-                </div>
-
-                <div class="dashboard-summary__note">
-                  <i class="fa fa-calendar"></i> Updated based on orders recorded this month.
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- Monthly Summary widget removed -->
         </div>
       </div>
 

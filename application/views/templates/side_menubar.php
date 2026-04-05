@@ -70,7 +70,7 @@
             <li class="treeview" id="mainOrdersNav">
                 <a href="#">
                     <i class="fa fa-dollar"></i>
-                    <span>Orders</span>
+                    <span>Receipts</span>
                     <span class="pull-right-container"><i class="fa fa-angle-right pull-right"></i></span>
                 </a>
                 <ul class="treeview-menu">

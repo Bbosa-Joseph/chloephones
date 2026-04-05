@@ -65,30 +65,18 @@ class Model_orders extends CI_Model
 
 		$count_product = count($this->input->post('product'));
 
-    	for($x = 0; $x < $count_product; $x++) {
 
-			$items = array(
-				'order_id' => $order_id,
-				'product_id' => $this->input->post('product')[$x],
-				'rate' => $this->input->post('rate_value')[$x],
-				'amount' => $this->input->post('amount_value')[$x],
-			);
-
-    		$this->db->insert('orders_item', $items);
-
-    		/* decrease stock */
-    		$product_data = $this->model_products->getProductData($this->input->post('product')[$x]);
-
-
-
-    		/*
-    		FOR PHONE SYSTEM (OPTIONAL LATER)
-    		If every phone has IMEI and single stock:
-
-    		$update_product = array('status' => 'sold');
-    		$this->model_products->update($update_product, $this->input->post('product')[$x]);
-    		*/
-    	}
+			for($x = 0; $x < $count_product; $x++) {
+				$items = array(
+					'order_id' => $order_id,
+					'product_id' => $this->input->post('product')[$x],
+					'rate' => $this->input->post('rate_value')[$x],
+					'amount' => $this->input->post('amount_value')[$x],
+				);
+				$this->db->insert('orders_item', $items);
+				// Mark product as sold immediately
+				$this->model_products->markPhoneSold($this->input->post('product')[$x]);
+			}
 
 		return ($order_id) ? $order_id : false;
 	}

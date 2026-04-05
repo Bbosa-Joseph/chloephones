@@ -13,6 +13,10 @@ application/cache/*
 # Environment / config overrides
 .env
 
+# Ignore sensitive CodeIgniter config files
+application/config/database.php
+application/config/config.php
+
 # OS files
 Thumbs.db
 .DS_Store

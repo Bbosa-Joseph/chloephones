@@ -67,6 +67,9 @@
             </div>
           </div>
           <div class="box-body" style="overflow-x:auto;">
+            <div id="outOfStockMsg" style="display:none;" class="alert alert-warning text-center">
+              <strong>All products are out of stock!</strong>
+            </div>
             <table id="manageTable" class="table table-bordered table-hover table-striped nowrap" style="width:100%;">
               <thead>
                 <tr>

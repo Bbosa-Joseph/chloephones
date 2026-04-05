@@ -41,7 +41,8 @@ public function fetchProductData()
 {
     $result = array('data' => array());
     try {
-        $data = $this->model_products->getProductData();
+        // Only show products that are in stock (availability = 1)
+        $data = $this->model_products->getActiveProductData();
         if (!is_array($data)) $data = array();
         foreach ($data as $key => $value) {
             $buttons = '';

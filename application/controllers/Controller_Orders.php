@@ -123,18 +123,24 @@ class Controller_Orders extends Admin_Controller
         		redirect('Controller_Orders/create/', 'refresh');
         	}
         }
-        else {
-            // false case
-        	$company = $this->model_company->getCompanyData(1);
-        	$this->data['company_data'] = $company;
-        	$this->data['is_vat_enabled'] = ($company['vat_charge_value'] > 0) ? true : false;
-        	$this->data['is_service_enabled'] = ($company['service_charge_value'] > 0) ? true : false;
+		else {
+			// false case
+			$company = $this->model_company->getCompanyData(1);
+			$this->data['company_data'] = $company;
+			$this->data['is_vat_enabled'] = ($company['vat_charge_value'] > 0) ? true : false;
+			$this->data['is_service_enabled'] = ($company['service_charge_value'] > 0) ? true : false;
 
-			// Only show products that are available (not already ordered/sold)
-			$this->data['products'] = $this->model_products->getActiveProductData();
+			// If IMEI is passed in the query, pre-select that product
+			$imei = $this->input->get('imei', true);
+			if ($imei) {
+				$product = $this->model_products->getProductByIMEI($imei);
+				$this->data['products'] = $product ? array($product) : array();
+			} else {
+				$this->data['products'] = $this->model_products->getActiveProductData();
+			}
 
-            $this->render_template('orders/create', $this->data);
-        }	
+			$this->render_template('orders/create', $this->data);
+		}  
 	}
 
 	/*
@@ -495,27 +501,28 @@ private function _buildReceiptHtml($order_data, $orders_items, $company_info, $o
 				</thead>
 				<tbody>';
 
-				foreach ($orders_items as $item) {
-					$product = $this->model_products->getProductData($item['product_id']);
-					$ram_size = '';
-					if (isset($product['ram']) && $product['ram'] !== '') {
-						$ram_size = 'RAM: ' . $product['ram'] . ' GB';
-					} elseif (!empty($product['storage'])) {
-						$ram_size = 'RAM: ' . $product['storage'] . ' GB';
-					}
-					// $warehouse = !empty($product['warehouse_name']) ? 'Warehouse: ' . $product['warehouse_name'] : '';
-					$imei = $product['imei'];
+				   foreach ($orders_items as $item) {
+					   $product = $this->model_products->getProductData($item['product_id']);
+					   $ram_line = '';
+					   $storage_line = '';
+					   if (isset($product['ram']) && $product['ram'] !== '') {
+						   $ram_line = '<small>RAM: ' . htmlspecialchars($product['ram']) . ' GB</small><br>';
+					   }
+					   if (isset($product['storage']) && $product['storage'] !== '') {
+						   $storage_line = '<small>Storage: ' . htmlspecialchars($product['storage']) . ' GB</small><br>';
+					   }
+					   $imei = $product['imei'];
 
-					$html .= '<tr>
-						<td>
-							<strong>'. $product['name'] .'</strong><br>
-							'. ($ram_size ? '<small>'. $ram_size .'</small><br>' : '') .'
-							<span class="imei-code">IMEI: '. $imei .'</span>
-						</td>
-						<td class="text-right">01</td>
-						<td class="text-right">'. number_format($item['amount'], 0) .' UGX</td>
-					</tr>';
-				}
+					   $html .= '<tr>
+						   <td>
+							   <strong>'. htmlspecialchars($product['name']) .'</strong><br>
+							   '. $ram_line . $storage_line .'
+							   <span class="imei-code">IMEI: '. htmlspecialchars($imei) .'</span>
+						   </td>
+						   <td class="text-right">01</td>
+						   <td class="text-right">'. number_format($item['amount'], 0) .' UGX</td>
+					   </tr>';
+				   }
 
 			$html .= '</tbody>
 			</table>
