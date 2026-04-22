@@ -437,6 +437,9 @@ class Controller_Orders extends Admin_Controller
 		$companyModel = new Model_company();
 
 		$orderData = $ordersModel->getOrdersData($id);
+		if (empty($orderData)) {
+			return $this->response->setStatusCode(404)->setBody('Order not found.');
+		}
 		$ordersItems = $ordersModel->getOrdersItemData($id);
 		$companyInfo = $companyModel->getCompanyData(1);
 
@@ -470,6 +473,9 @@ class Controller_Orders extends Admin_Controller
 		$companyModel = new Model_company();
 
 		$orderData = $ordersModel->getOrdersData($id);
+		if (empty($orderData)) {
+			return $this->response->setStatusCode(404)->setBody('Order not found.');
+		}
 		$ordersItems = $ordersModel->getOrdersItemData($id);
 		$companyInfo = $companyModel->getCompanyData(1);
 
