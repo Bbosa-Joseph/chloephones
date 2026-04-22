@@ -170,21 +170,40 @@
 	</section>
 </div>
 
-		<div class="modal fade" id="receiptModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel">
-			<div class="modal-dialog modal-lg" role="document">
+		<style>
+			.receipt-modal .modal-dialog { width: 560px; max-width: 96vw; margin: 10px auto; }
+			.receipt-modal .modal-content { border-radius: 10px; }
+			.receipt-modal .modal-header,
+			.receipt-modal .modal-footer { padding: 8px 12px; }
+			.receipt-modal .modal-body { padding: 0; overflow: hidden; }
+			.receipt-modal #receiptFrame { width: 100%; border: 0; display: block; }
+			@media (max-width: 640px) {
+				.receipt-modal .modal-dialog { width: auto; margin: 8px; }
+			}
+		</style>
+		<div class="modal fade receipt-modal" id="receiptModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel">
+			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<h4 class="modal-title" id="receiptModalLabel">Receipt</h4>
 					</div>
-					<div class="modal-body" style="padding:0;">
-						<iframe id="receiptFrame" title="Receipt" style="width:100%; height:70vh; border:0;"></iframe>
+					<div class="modal-body">
+						<iframe id="receiptFrame" title="Receipt"></iframe>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-default" id="receiptShareBtn">Share</button>
-						<a href="#" class="btn btn-success" id="receiptDownloadBtn" target="_blank" rel="noopener">Download PDF</a>
-						<button type="button" class="btn btn-primary" id="receiptPrintBtn">Print</button>
-						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-default" id="receiptShareBtn" title="Share" aria-label="Share">
+							<i class="fa fa-share-alt" aria-hidden="true"></i>
+						</button>
+						<button type="button" class="btn btn-success" id="receiptSaveBtn" title="Save image" aria-label="Save image">
+							<i class="fa fa-save" aria-hidden="true"></i>
+						</button>
+						<button type="button" class="btn btn-primary" id="receiptPrintBtn" title="Print" aria-label="Print">
+							<i class="fa fa-print" aria-hidden="true"></i>
+						</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal" title="Close" aria-label="Close">
+							<i class="fa fa-times" aria-hidden="true"></i>
+						</button>
 					</div>
 				</div>
 			</div>
@@ -250,19 +269,53 @@
 		if (!orderId) return;
 
 		var receiptUrl = base_url + 'Controller_Orders/printDiv/' + orderId + '?embed=1&auto=1';
-		var pdfUrl = base_url + 'Controller_Orders/downloadPDF/' + orderId;
 
 		$('#receiptFrame').attr('src', receiptUrl);
-		$('#receiptDownloadBtn').attr('href', pdfUrl);
-		$('#receiptShareBtn').data('share-url', pdfUrl);
+		$('#receiptShareBtn').data('share-url', receiptUrl);
 		$('#receiptModal').modal('show');
 	}
+
+	function resizeReceiptModal() {
+		var frame = document.getElementById('receiptFrame');
+		if (!frame || !frame.contentWindow) return;
+
+		var doc = frame.contentWindow.document;
+		if (!doc || !doc.body) return;
+
+		var contentHeight = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+		var contentWidth = Math.max(doc.body.scrollWidth, doc.documentElement.scrollWidth);
+		var maxHeight = Math.max(320, window.innerHeight - 180);
+		var maxWidth = Math.max(320, window.innerWidth - 40);
+		var targetHeight = Math.min(contentHeight, maxHeight);
+		var targetWidth = Math.min(Math.max(420, contentWidth), maxWidth);
+
+		frame.style.height = targetHeight + 'px';
+		var dialog = document.querySelector('#receiptModal .modal-dialog');
+		if (dialog) {
+			dialog.style.width = targetWidth + 'px';
+		}
+	}
+
+	$('#receiptFrame').on('load', function() {
+		resizeReceiptModal();
+	});
+
+	$(window).on('resize', function() {
+		resizeReceiptModal();
+	});
 
 	$('#receiptPrintBtn').on('click', function() {
 		var frame = document.getElementById('receiptFrame');
 		if (frame && frame.contentWindow) {
 			frame.contentWindow.focus();
 			frame.contentWindow.print();
+		}
+	});
+
+	$('#receiptSaveBtn').on('click', function() {
+		var frame = document.getElementById('receiptFrame');
+		if (frame && frame.contentWindow && typeof frame.contentWindow.saveReceiptImage === 'function') {
+			frame.contentWindow.saveReceiptImage();
 		}
 	});
 
@@ -273,7 +326,7 @@
 		if (navigator.share) {
 			navigator.share({
 				title: 'Receipt',
-				text: 'Receipt PDF',
+				text: 'Receipt',
 				url: url
 			});
 		} else if (navigator.clipboard && navigator.clipboard.writeText) {

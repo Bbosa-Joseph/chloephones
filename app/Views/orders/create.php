@@ -2,12 +2,14 @@
 <?php $prefilledProduct = $prefilled_product ?? null; ?>
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
 <style>
+	.order-form .box-body { padding: 16px; }
 	.order-form .control-label { text-align: left; }
 	.order-form .form-group { margin-bottom: 12px; }
 	.order-form .product-summary { margin-bottom: 12px; }
 	.order-form .btn { margin-bottom: 6px; }
 	@media (max-width: 767px) {
 		.content-wrapper { padding: 0 8px; }
+		.order-form .box-body { padding: 16px; }
 		.order-form .form-horizontal .control-label { text-align: left; }
 		.order-form .col-sm-5,
 		.order-form .col-sm-7 { float: none; width: 100%; }
@@ -62,25 +64,25 @@
 									<label for="gross_amount" class="col-sm-12 control-label">Date: <?php echo date('h:i a'); ?></label>
 								</div>
 
-								<div class="col-md-7 col-xs-12">
+								<div class="col-md-7 col-sm-12">
 
 									<div class="form-group">
-										<label for="gross_amount" class="col-sm-5 control-label" style="text-align:left;">Client Name</label>
-										<div class="col-sm-7">
+										<label for="gross_amount" class="col-sm-5 col-xs-12 control-label" style="text-align:left;">Client Name</label>
+										<div class="col-sm-7 col-xs-12">
 											<input type="text" class="form-control" id="customer_name" name="customer_name" placeholder="Enter Client Name" autocomplete="off" />
 										</div>
 									</div>
 
 									<div class="form-group">
-										<label for="gross_amount" class="col-sm-5 control-label" style="text-align:left;">NIN No</label>
-										<div class="col-sm-7">
+										<label for="gross_amount" class="col-sm-5 col-xs-12 control-label" style="text-align:left;">NIN No</label>
+										<div class="col-sm-7 col-xs-12">
 											<textarea type="text" class="form-control" id="customer_address" name="customer_address" placeholder="Enter NIN No" autocomplete="off"></textarea>
 										</div>
 									</div>
 
 									<div class="form-group">
-										<label for="gross_amount" class="col-sm-5 control-label" style="text-align:left;">Client Phone</label>
-										<div class="col-sm-7">
+										<label for="gross_amount" class="col-sm-5 col-xs-12 control-label" style="text-align:left;">Client Phone</label>
+										<div class="col-sm-7 col-xs-12">
 											<input type="text" class="form-control" id="customer_phone" name="customer_phone" placeholder="Enter Client Phone" autocomplete="off">
 										</div>
 									</div>
@@ -88,8 +90,8 @@
 
 
 								<div class="form-group">
-									<label for="imei_input" class="col-sm-5 control-label" style="text-align:left;">IMEI / Serial</label>
-									<div class="col-sm-7">
+									<label for="imei_input" class="col-sm-5 col-xs-12 control-label" style="text-align:left;">IMEI / Serial</label>
+									<div class="col-sm-7 col-xs-12">
 										<?php if (!empty($prefilledProduct)): ?>
 											<input type="text" class="form-control" value="<?php echo htmlspecialchars($prefilledProduct['imei']); ?>" readonly>
 										<?php else: ?>
@@ -101,8 +103,8 @@
 								<br /> <br/>
 								<div class="product-summary" id="product_info_table">
 									<div class="form-group">
-										<label class="col-sm-5 control-label" style="text-align:left;">Product</label>
-										<div class="col-sm-7">
+										<label class="col-sm-5 col-xs-12 control-label" style="text-align:left;">Product</label>
+										<div class="col-sm-7 col-xs-12">
 											<?php if (!empty($prefilledProduct)): ?>
 												<input type="hidden" name="product[]" id="product_1" value="<?php echo (int) $prefilledProduct['id']; ?>">
 												<input type="text" class="form-control" value="<?php echo htmlspecialchars($prefilledProduct['name']); ?>" readonly>
@@ -119,8 +121,8 @@
 									</div>
 
 									<div class="form-group">
-										<label class="col-sm-5 control-label" style="text-align:left;">Price</label>
-										<div class="col-sm-7">
+										<label class="col-sm-5 col-xs-12 control-label" style="text-align:left;">Price</label>
+										<div class="col-sm-7 col-xs-12">
 											<input type="text" name="amount[]" id="amount_1" class="form-control" value="<?php echo !empty($prefilledProduct) ? $prefilledProduct['price'] : ''; ?>" disabled autocomplete="off">
 											<input type="hidden" name="amount_value[]" id="amount_value_1" class="form-control" autocomplete="off" value="<?php echo !empty($prefilledProduct) ? $prefilledProduct['price'] : ''; ?>">
 										</div>

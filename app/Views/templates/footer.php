@@ -33,7 +33,7 @@
 
 	<footer class="ci-footer">
 		<span>&copy; <?php echo date('Y'); ?> Chloe Inventory Management System</span>
-		<span>Version 1.0</span>
+		<span>Version 2.0</span>
 	</footer>
 </body>
 </html>

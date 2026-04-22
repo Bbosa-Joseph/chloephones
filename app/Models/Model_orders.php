@@ -65,14 +65,38 @@ class Model_orders extends Model
         if ($orderId) {
             $itemsTable = $this->getItemsTableName();
             $hasReturnFlag = $this->db->fieldExists('returned', $itemsTable);
+            $hasSnapshot = $this->db->fieldExists('product_name', $itemsTable);
+
+            $productIds = array_values(array_unique(array_filter(array_column($items, 'product_id'))));
+            $productMap = [];
+            if (! empty($productIds)) {
+                $productRows = $this->db->table('products')
+                    ->whereIn('id', $productIds)
+                    ->get()
+                    ->getResultArray();
+                foreach ($productRows as $productRow) {
+                    $productMap[(int) $productRow['id']] = $productRow;
+                }
+            }
+
             $rows = [];
             foreach ($items as $item) {
+                $productId = $item['product_id'] ?? null;
+                $product = $productId ? ($productMap[(int) $productId] ?? []) : [];
                 $row = [
                     'order_id' => $orderId,
-                    'product_id' => $item['product_id'] ?? null,
+                    'product_id' => $productId,
                     'rate' => $item['rate'] ?? 0,
                     'amount' => $item['amount'] ?? 0,
                 ];
+                if ($hasSnapshot) {
+                    $row['product_name'] = $product['name'] ?? null;
+                    $row['product_imei'] = $product['imei'] ?? null;
+                    $row['product_price'] = $product['price'] ?? null;
+                    $row['product_storage'] = $product['storage'] ?? null;
+                    $row['product_ram'] = $product['ram'] ?? null;
+                    $row['product_warehouse_id'] = $product['warehouse_id'] ?? null;
+                }
                 if ($hasReturnFlag) {
                     $row['returned'] = 0;
                 }
@@ -81,6 +105,12 @@ class Model_orders extends Model
 
             if (! empty($rows)) {
                 $this->db->table($itemsTable)->insertBatch($rows);
+            }
+
+            if (! empty($productIds)) {
+                $this->db->table('products')
+                    ->whereIn('id', $productIds)
+                    ->delete();
             }
         }
 
@@ -102,14 +132,38 @@ class Model_orders extends Model
         $this->db->table($itemsTable)->where('order_id', $id)->delete();
 
         $hasReturnFlag = $this->db->fieldExists('returned', $itemsTable);
+        $hasSnapshot = $this->db->fieldExists('product_name', $itemsTable);
+
+        $productIds = array_values(array_unique(array_filter(array_column($items, 'product_id'))));
+        $productMap = [];
+        if (! empty($productIds)) {
+            $productRows = $this->db->table('products')
+                ->whereIn('id', $productIds)
+                ->get()
+                ->getResultArray();
+            foreach ($productRows as $productRow) {
+                $productMap[(int) $productRow['id']] = $productRow;
+            }
+        }
+
         $rows = [];
         foreach ($items as $item) {
+            $productId = $item['product_id'] ?? null;
+            $product = $productId ? ($productMap[(int) $productId] ?? []) : [];
             $row = [
                 'order_id' => $id,
-                'product_id' => $item['product_id'] ?? null,
+                'product_id' => $productId,
                 'rate' => $item['rate'] ?? 0,
                 'amount' => $item['amount'] ?? 0,
             ];
+            if ($hasSnapshot) {
+                $row['product_name'] = $product['name'] ?? null;
+                $row['product_imei'] = $product['imei'] ?? null;
+                $row['product_price'] = $product['price'] ?? null;
+                $row['product_storage'] = $product['storage'] ?? null;
+                $row['product_ram'] = $product['ram'] ?? null;
+                $row['product_warehouse_id'] = $product['warehouse_id'] ?? null;
+            }
             if ($hasReturnFlag) {
                 $row['returned'] = 0;
             }
@@ -118,6 +172,13 @@ class Model_orders extends Model
 
         if (! empty($rows)) {
             $this->db->table($itemsTable)->insertBatch($rows);
+        }
+
+        $newProductIds = array_values(array_unique(array_filter(array_column($rows, 'product_id'))));
+        if (! empty($newProductIds)) {
+            $this->db->table('products')
+                ->whereIn('id', $newProductIds)
+                ->delete();
         }
 
         $this->db->transComplete();

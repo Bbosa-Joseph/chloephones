@@ -20,25 +20,6 @@
       ?>
 
       <div class="dashboard-shell">
-        <div class="dashboard-hero">
-          <div class="dashboard-hero__content">
-            <span class="dashboard-hero__eyebrow">Overview</span>
-            <h2 class="dashboard-hero__title">Welcome back, <?php echo ucfirst($session->get('username')); ?></h2>
-            <p class="dashboard-hero__text">
-              Monitor sales performance, inventory activity, branch coverage, and order status from one clean workspace.
-            </p>
-          </div>
-          <div class="dashboard-hero__meta">
-            <div class="dashboard-hero__meta-item">
-              <span class="dashboard-hero__meta-label">This Month</span>
-              <strong><?php echo (int) $monthSales; ?> Sales</strong>
-            </div>
-            <div class="dashboard-hero__meta-item">
-              <span class="dashboard-hero__meta-label">Revenue</span>
-              <strong><?php echo number_format($monthRevenue ?? 0); ?></strong>
-            </div>
-          </div>
-        </div>
 
         <div class="row dashboard-stats-row">
           <div class="col-lg-3 col-sm-6">

@@ -1,5 +1,17 @@
 <?php $session = session(); $validation = \Config\Services::validation(); ?>
-<link rel="stylesheet" href="<?php echo base_url('assets/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css'); ?>">
+<style>
+ .box .box-body {
+ 	padding: 30px !important;
+ }
+@media (max-width: 768px) {
+	.content-wrapper .content-header h1 { font-size: 20px; }
+	.box-header .box-title { font-size: 16px; }
+	.box-body { padding: 15px; }
+	.box-footer { padding: 12px 15px; }
+	.input-group { width: 100%; }
+	.input-group .form-control { width: calc(100% - 44px); }
+}
+</style>
 
 <div class="content-wrapper">
 
@@ -63,46 +75,48 @@
 
 <div class="box-body">
 
-<?php echo $validation->listErrors(); ?>
-
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label>Phone Model</label>
 			<input type="text" class="form-control" name="product_name" placeholder="Example: Samsung A14" required>
 		</div>
 	</div>
+	<div class="col-md-6 col-sm-12">
+		<div class="form-group">
+			<label>IMEI Numbers (Manual Entry)</label>
+			<div id="imei-wrapper">
+				<div class="input-group" style="margin-bottom:5px;">
+					<input type="text" name="imei_list[]" class="form-control" placeholder="Enter IMEI">
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-success add-imei"><i class="fa fa-plus"></i></button>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
 
-        <div class="form-group">
-            <label>IMEI Numbers (Manual Entry)</label>
-            <div id="imei-wrapper">
-                <div class="input-group" style="margin-bottom:5px;">
-                    <input type="text" name="imei_list[]" class="form-control" placeholder="Enter IMEI">
-                    <span class="input-group-btn">
-                        <button type="button" class="btn btn-success add-imei"><i class="fa fa-plus"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>OR Paste Multiple IMEIs</label>
-            <textarea 
-                class="form-control" 
-                name="imei_bulk" 
-                rows="4"
-                placeholder="Paste IMEIs (comma, space, or new line separated)"></textarea>
-        </div>
+<div class="row">
+	<div class="col-md-12">
+		<div class="form-group">
+			<label>OR Paste Multiple IMEIs</label>
+			<textarea 
+				class="form-control" 
+				name="imei_bulk" 
+				rows="4"
+				placeholder="Paste IMEIs (comma, space, or new line separated)"></textarea>
+		</div>
+	</div>
 </div>
 
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label>Storage (GB)</label>
 			<input type="number" class="form-control" name="storage" placeholder="e.g. 128">
 		</div>
 	</div>
-	<div class="col-md-6">
+	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label>RAM (GB)</label>
 			<input type="number" class="form-control" name="ram" placeholder="e.g. 4">
@@ -111,13 +125,13 @@
 </div>
 
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label>Price (UGX)</label>
 			<input type="number" class="form-control" name="price" placeholder="Enter Price" required>
 		</div>
 	</div>
-	<div class="col-md-6">
+	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label>Assign Warehouse</label>
 			<select class="form-control" name="warehouse_id">
@@ -133,7 +147,7 @@
 </div>
 
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label>Availability</label>
 			<select class="form-control" name="availability">
@@ -174,16 +188,12 @@ Back
 </div>
 
 
-<script src="<?php echo base_url('assets/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js'); ?>"></script>
-
-
 <script>
 
 $(document).ready(function(){
 
 	$("#mainProductNav").addClass('active');
 	$("#addProductNav").addClass('active');
-	$("#description").wysihtml5();
 
 });
 

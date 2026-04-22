@@ -25,6 +25,13 @@ class CompanySettingsModel extends BaseModel
 
     public function saveSettings(array $data): bool
     {
-        return $this->update(1, $data);
+        $table = $this->db->table($this->table);
+        $existing = $table->where('id', 1)->get()->getRowArray();
+        if ($existing) {
+            return (bool) $table->where('id', 1)->update($data);
+        }
+
+        $dataWithId = array_merge(['id' => 1], $data);
+        return (bool) $table->insert($dataWithId);
     }
 }

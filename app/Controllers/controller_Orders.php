@@ -90,8 +90,35 @@ class Controller_Orders extends Admin_Controller
 		foreach ($items as $item) {
 			$productId = (int) ($item['product_id'] ?? 0);
 			if ($productId > 0) {
-				$productsModel->update(['availability' => 1], $productId);
-				$updated++;
+				$product = $productsModel->getProductData($productId);
+				if (! empty($product)) {
+					$productsModel->update(['availability' => 1], $productId);
+					$updated++;
+					continue;
+				}
+			}
+
+			$productName = $item['product_name'] ?? null;
+			if ($productName) {
+				$newId = $productsModel->create([
+					'name' => $productName,
+					'imei' => $item['product_imei'] ?? null,
+					'price' => $item['product_price'] ?? 0,
+					'storage' => $item['product_storage'] ?? null,
+					'ram' => $item['product_ram'] ?? null,
+					'warehouse_id' => $item['product_warehouse_id'] ?? null,
+					'availability' => 1,
+					'date_added' => date('Y-m-d'),
+				]);
+				if ($newId) {
+					if ($productId > 0) {
+						$db->table($itemsTable)
+							->where('order_id', (int) $orderId)
+							->where('product_id', $productId)
+							->update(['product_id' => (int) $newId]);
+					}
+					$updated++;
+				}
 			}
 		}
 
@@ -474,6 +501,11 @@ class Controller_Orders extends Admin_Controller
 			$returnJs = '<script>window.onafterprint = function(){ window.location.href = "' . $returnUrl . '"; };</script>';
 		}
 
+		$embedCss = '';
+		if (!$showActions) {
+			$embedCss = 'body { background: #fff; padding: 0; } .invoice { margin: 0 auto; max-width: 100%; border-radius: 0; }';
+		}
+
 		$html = '<!DOCTYPE html>
 <html>
 <head>
@@ -482,8 +514,9 @@ class Controller_Orders extends Admin_Controller
 <title>Receipt</title>
 <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 <style>
-body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; color: #1f2937; background: #e5e7eb; }
-.invoice { max-width: 520px; margin: 24px auto; padding: 24px 22px; border-radius: 12px; border: 1px solid #cbd5e1; background: #ffffff; box-shadow: 0 8px 26px rgba(15,23,42,0.10); }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; color: #1f2937; background: #e5e7eb; margin: 0; padding: 16px; }
+.invoice { max-width: 520px; width: 100%; margin: 24px auto; padding: 24px 22px; border-radius: 12px; border: 1px solid #cbd5e1; background: #ffffff; box-shadow: 0 8px 26px rgba(15,23,42,0.10); }
 .invoice-header { text-align: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 2px solid #0f4c81; }
 .brand { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .brand-logo { width: 62px; height: 62px; object-fit: contain; border-radius: 10px; border: 1px solid #cbd5e1; padding: 5px; background: #fff; }
@@ -508,27 +541,41 @@ body { background: #fff; }
 .invoice { border: none; box-shadow: none; }
 .receipt-actions { display: none; }
 }
+@media (max-width: 640px) {
+body { padding: 10px; }
+.invoice { margin: 12px auto; padding: 16px 14px; }
+.brand-text h1 { font-size: 18px; }
+.invoice-meta div { font-size: 13px; }
+.invoice-items th, .invoice-items td { padding: 6px 4px; font-size: 13px; }
+.invoice-totals div { font-size: 16px; }
+}
 .receipt-actions { text-align: center; margin: 20px auto; max-width: 520px; }
 .receipt-actions .btn { display: inline-block; padding: 10px 24px; margin: 0 6px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; color: #fff; }
 .receipt-actions .btn-print { background: #0f4c81; }
-.receipt-actions .btn-pdf { background: #059669; }
+.receipt-actions .btn-save { background: #0f766e; }
+.receipt-actions .btn-icon { width: 16px; height: 16px; vertical-align: -3px; margin-right: 6px; fill: currentColor; }
 .receipt-actions .btn:hover { opacity: 0.9; }
+' . $embedCss . '
 </style>
 </head>
 <body>
 
 ' . ($showActions ? '<div class="receipt-actions">
 <button class="btn btn-primary btn-sm" onclick="window.print();">Print Receipt</button>
-<a class="btn btn-pdf" href="' . base_url('Controller_Orders/downloadPDF/' . $orderData['id']) . '">Download PDF</a>
+<button class="btn btn-save" type="button" onclick="saveReceiptImage();">
+<svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5zM7 5v4h8V5zM7 19h10v-6H7z"></path></svg>
+Save Image
+</button>
 </div>' : '') . '
 
-<div class="invoice">
+<div class="invoice" id="receiptCard" data-receipt="' . htmlspecialchars((string) ($orderData['bill_no'] ?? '')) . '">
 <div class="invoice-header">
 <div class="brand">
 <img src="' . $logoUrl . '" alt="Company Logo" class="brand-logo">
 <div class="brand-text">
-<h1>Chlo Phone Center</h1>
+<h1>Chloe Phone Center</h1>
 <p>Sales Receipt</p>
+<p>chloephonecenter@gmail.com</p>
 </div>
 </div>
 <div class="receipt-date">Date: ' . $orderDate . '</div>
@@ -554,21 +601,28 @@ body { background: #fff; }
 <tbody>';
 
 		foreach ($ordersItems as $item) {
-			$product = $productsModel->getProductData($item['product_id']);
-			$ramLine = '';
-			$storageLine = '';
-			if (isset($product['ram']) && $product['ram'] !== '') {
-				$ramLine = '<small>RAM: ' . htmlspecialchars($product['ram']) . ' GB</small><br>';
-			}
-			if (isset($product['storage']) && $product['storage'] !== '') {
-				$storageLine = '<small>Storage: ' . htmlspecialchars($product['storage']) . ' GB</small><br>';
+			$product = [];
+			if (empty($item['product_name']) && ! empty($item['product_id'])) {
+				$product = $productsModel->getProductData($item['product_id']);
 			}
 
-			$imei = $product['imei'] ?? '';
+			$productName = $item['product_name'] ?? ($product['name'] ?? '');
+			$ramValue = $item['product_ram'] ?? ($product['ram'] ?? '');
+			$storageValue = $item['product_storage'] ?? ($product['storage'] ?? '');
+			$imei = $item['product_imei'] ?? ($product['imei'] ?? '');
+
+			$ramLine = '';
+			$storageLine = '';
+			if ($ramValue !== '') {
+				$ramLine = '<small>RAM: ' . htmlspecialchars($ramValue) . ' GB</small><br>';
+			}
+			if ($storageValue !== '') {
+				$storageLine = '<small>Storage: ' . htmlspecialchars($storageValue) . ' GB</small><br>';
+			}
 
 			$html .= '<tr>
 <td>
-<strong>' . htmlspecialchars($product['name'] ?? '') . '</strong><br>
+<strong>' . htmlspecialchars($productName) . '</strong><br>
 ' . $ramLine . $storageLine . '
 <span class="imei-code">IMEI: ' . htmlspecialchars($imei) . '</span>
 </td>
@@ -592,6 +646,33 @@ body { background: #fff; }
 </div>
 
 ' . $returnJs . '
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+(function() {
+	function downloadDataUrl(dataUrl, filename) {
+		var link = document.createElement("a");
+		link.href = dataUrl;
+		link.download = filename;
+		document.body.appendChild(link);
+		link.click();
+		link.remove();
+	}
+
+	window.saveReceiptImage = function() {
+		var target = document.getElementById("receiptCard");
+		if (!target || typeof html2canvas !== "function") {
+			return;
+		}
+
+		var receiptNo = target.getAttribute("data-receipt") || "Receipt";
+		var fileName = "Receipt_" + receiptNo + ".png";
+
+		html2canvas(target, { scale: 2, backgroundColor: "#ffffff" }).then(function(canvas) {
+			downloadDataUrl(canvas.toDataURL("image/png"), fileName);
+		});
+	};
+})();
+</script>
 </body>
 </html>';
 
