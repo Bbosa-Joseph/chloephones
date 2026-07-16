@@ -57,8 +57,90 @@ class Model_orders extends Model
             ->getResultArray();
     }
 
+    public function generateBillNo(): string
+    {
+        return $this->formatBillNo($this->getStoredOrFallbackNextBillNumber());
+    }
+
+    private function getFallbackNextBillNumber(): int
+    {
+        $nextNumber = $this->getNextOrderSequenceNumber();
+
+        $lastNumericBill = $this->select('bill_no')
+            ->where("bill_no REGEXP '^[0-9]+$'", null, false)
+            ->orderBy('CAST(bill_no AS UNSIGNED)', 'DESC', false)
+            ->first();
+
+        if (! empty($lastNumericBill['bill_no'])) {
+            $nextNumber = max($nextNumber, ((int) $lastNumericBill['bill_no']) + 1);
+        }
+
+        return $nextNumber;
+    }
+
+    private function getNextOrderSequenceNumber(): int
+    {
+        $tableName = $this->db->prefixTable($this->table);
+        $status = $this->db->query('SHOW TABLE STATUS LIKE ?', [$tableName])->getRowArray();
+
+        if (! empty($status['Auto_increment'])) {
+            return (int) $status['Auto_increment'];
+        }
+
+        return 1;
+    }
+
+    private function getStoredOrFallbackNextBillNumber(): int
+    {
+        $nextNumber = $this->getFallbackNextBillNumber();
+
+        if (! $this->db->tableExists('company_settings') || ! $this->db->fieldExists('next_receipt_number', 'company_settings')) {
+            return $nextNumber;
+        }
+
+        $settings = $this->db->table('company_settings')
+            ->select('next_receipt_number')
+            ->where('id', 1)
+            ->get()
+            ->getRowArray();
+
+        if (! empty($settings['next_receipt_number'])) {
+            $nextNumber = max($nextNumber, (int) $settings['next_receipt_number']);
+        }
+
+        return $nextNumber;
+    }
+
+    private function reserveBillNo(): string
+    {
+        $nextNumber = $this->getStoredOrFallbackNextBillNumber();
+
+        if ($this->db->tableExists('company_settings') && $this->db->fieldExists('next_receipt_number', 'company_settings')) {
+            $settingsTable = $this->db->table('company_settings');
+            $existing = $settingsTable->where('id', 1)->get()->getRowArray();
+            $payload = ['next_receipt_number' => $nextNumber + 1];
+
+            if ($existing) {
+                $settingsTable->where('id', 1)->update($payload);
+            } else {
+                $settingsTable->insert(['id' => 1] + $payload);
+            }
+        }
+
+        return $this->formatBillNo($nextNumber);
+    }
+
+    private function formatBillNo(int $number): string
+    {
+        return str_pad((string) $number, 4, '0', STR_PAD_LEFT);
+    }
+
     public function createOrder(array $orderData, array $items): ?int
     {
+        if (empty($orderData['bill_no'])) {
+            $orderData['bill_no'] = $this->reserveBillNo();
+        }
+
         $this->db->transStart();
 
         $orderId = $this->insert($orderData, true);

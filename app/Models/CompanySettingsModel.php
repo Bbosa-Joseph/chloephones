@@ -14,6 +14,7 @@ class CompanySettingsModel extends BaseModel
         'company_name', 'address', 'phone', 'email', 'website',
         'country', 'currency', 'currency_symbol',
         'tax_rate', 'service_charge_rate',
+        'next_receipt_number',
         'logo', 'footer_message',
     ];
 

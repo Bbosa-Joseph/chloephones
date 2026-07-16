@@ -167,7 +167,6 @@ class Controller_Orders extends Admin_Controller
 			}
 
 			$payload = [
-				'bill_no' => 'N0:' . date('YmdHis'),
 				'customer_name' => $this->request->getPost('customer_name'),
 				'customer_address' => $this->request->getPost('customer_address'),
 				'customer_phone' => $this->request->getPost('customer_phone'),
