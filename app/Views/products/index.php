@@ -39,61 +39,10 @@
 					</button>
 				<?php endif; ?>
 
-				<div class="box">
-					<div class="box-header with-border">
-						<div class="row" style="margin-bottom:0;">
-							<div class="col-sm-3 col-xs-6" style="margin-bottom:8px;">
-								<select id="filterWarehouse" class="form-control input-sm">
-									<option value="">All Warehouses</option>
-									<?php if(!empty($warehouses)): foreach($warehouses as $wh): ?>
-										<option value="<?php echo htmlspecialchars($wh['name']); ?>"><?php echo htmlspecialchars($wh['name']); ?></option>
-									<?php endforeach; endif; ?>
-								</select>
-							</div>
-							<div class="col-sm-3 col-xs-6" style="margin-bottom:8px;">
-								<select id="filterAvailability" class="form-control input-sm">
-									<option value="">All Status</option>
-									<option value="In Stock">In Stock</option>
-									<option value="Out of Stock">Out of Stock</option>
-								</select>
-							</div>
-							<div class="col-sm-3 col-xs-6" style="margin-bottom:8px;">
-								<select id="filterStockAge" class="form-control input-sm">
-									<option value="">All Ages</option>
-									<option value="Fresh">Fresh</option>
-									<option value="Aged">Aged</option>
-								</select>
-							</div>
-							<div class="col-sm-3 col-xs-6" style="margin-bottom:8px;">
-								<div id="filterSearchWrap"></div>
-							</div>
-						</div>
-					</div>
-					<div class="box-body" style="overflow-x:auto;">
-						<div id="outOfStockMsg" style="display:none;" class="alert alert-warning text-center">
-							<strong>All products are out of stock!</strong>
-						</div>
-						<table id="manageTable" class="table table-bordered table-hover table-striped nowrap" style="width:100%;">
-							<thead>
-								<tr>
-									<?php if(in_array('deleteProduct', $user_permission)): ?>
-										<th style="width:30px;"><input type="checkbox" id="selectAll"></th>
-									<?php endif; ?>
-									<th style="width: 120px;">Product</th>
-									<th>IMEI</th>
-									<th>Price</th>
-									<th>Warehouse</th>
-									<th class="hide-mobile">Availability</th>
-									<th>Ages</th>
-									<?php if(in_array('updateProduct', $user_permission) || in_array('deleteProduct', $user_permission) || in_array('printProduct', $user_permission) || in_array('createOrder', $user_permission)): ?>
-										<th>Action</th>
-									<?php endif; ?>
-								</tr>
-							</thead>
-
-						</table>
-					</div>
-				</div>
+				<?= view('partials/tables/products-table', [
+					'warehouses' => $warehouses,
+					'user_permission' => $user_permission,
+				]) ?>
 
 			</div>
 		</div>
@@ -171,14 +120,78 @@ $(document).ready(function() {
 		dom: 'frtip',
 		responsive: true,
 		columnDefs: [
-			{ targets: 0 + colOffset, width: '120px', render: function(data) {
-					return '<span class="truncate" title="'+data+'">'+data+'</span>';
+			{ targets: 0 + colOffset, width: '260px', render: function(data, type, row) {
+					try {
+						var name = data || '';
+						var added = row.date_added || row.created_at || '';
+						var addedDate = added ? new Date(added) : null;
+						var today = new Date();
+						var diffDays = 0;
+						if (addedDate && !isNaN(addedDate.getTime())) {
+							diffDays = Math.floor((today - addedDate)/(1000*60*60*24));
+						}
+						var daysRemaining = 15 - diffDays;
+
+						var color = '#00b606'; // green
+						var icon = 'fa-circle';
+						var label = daysRemaining > 0 ? daysRemaining : '0';
+						var tooltipLabel = '';
+
+						if (diffDays >= 15) {
+							color = '#e40c05'; // red
+							icon = 'fa-exclamation-triangle';
+							label = 'Aged';
+							tooltipLabel = '<strong>Aged Stock</strong> &nbsp;<i class="fa fa-exclamation-triangle" style="color:#fff"></i>';
+						} else if (daysRemaining >= 11) {
+							color = '#0abb0f'; // green
+						} else if (daysRemaining >= 6) {
+							color = '#ffe600'; // yellow
+						} else if (daysRemaining >= 1) {
+							color = '#f19304'; // orange
+						} else {
+							color = '#e40800'; // red
+						}
+
+						var displayLabel = (diffDays >= 15) ? 'Aged Stock' : (daysRemaining > 0 ? daysRemaining + 'd' : '0d');
+
+						var formattedDate = '';
+						var formattedTime = '';
+						if (addedDate && !isNaN(addedDate.getTime())) {
+							var y = addedDate.getFullYear();
+							var m = ('0' + (addedDate.getMonth()+1)).slice(-2);
+							var d = ('0' + addedDate.getDate()).slice(-2);
+							var hh = ('0' + addedDate.getHours()).slice(-2);
+							var mm = ('0' + addedDate.getMinutes()).slice(-2);
+							formattedDate = y + '-' + m + '-' + d;
+							formattedTime = hh + ':' + mm;
+						}
+
+						var tooltipHtml = '';
+						tooltipHtml += '<div style="text-align:left;">';
+						tooltipHtml += '<div><strong>Date Added:</strong> ' + (formattedDate || 'N/A') + '</div>';
+						tooltipHtml += '<div><strong>Time Added:</strong> ' + (formattedTime || 'N/A') + '</div>';
+						tooltipHtml += '<div><strong>Days in Stock:</strong> ' + diffDays + '</div>';
+						tooltipHtml += '<div><strong>Days Remaining:</strong> ' + (diffDays >= 15 ? 0 : daysRemaining) + '</div>';
+						tooltipHtml += '<div><strong>Inventory Threshold:</strong> 15 Days</div>';
+						tooltipHtml += '</div>';
+
+						var indicator = '\n                            <span class="stock-indicator" data-toggle="tooltip" data-html="true" title="' + tooltipHtml.replace(/"/g, '&quot;') + '" style="display:inline-block;margin-left:8px;vertical-align:middle;">'
+							+ '<i class="fa ' + (diffDays >= 15 ? 'fa-exclamation-triangle' : 'fa-circle') + '" style="color:' + color + ';font-size:12px;margin-right:4px;vertical-align:middle;"></i>'
+							+ '<span style="display:inline-block;background:' + color + ';color:#fff;border-radius:10px;padding:2px 6px;font-size:11px;vertical-align:middle;">' + (diffDays >= 15 ? 'Aged' : (daysRemaining > 0 ? daysRemaining : 0)) + '</span>'
+							+ '</span>';
+
+						return '<span class="truncate" title="'+name+'">'+name+'</span>' + indicator;
+					} catch (e) {
+						return '<span class="truncate" title="'+data+'">'+data+'</span>';
+					}
 				}
 			},
 			{ targets: 1 + colOffset, render: function(data) {
 					return '<span class="truncate" title="'+data+'">'+data+'</span>';
 				}
 			},
+				// Hide the Price column to free up space (keeps indexing intact)
+				{ targets: 2 + colOffset, visible: false },
 			{ targets: 3 + colOffset, render: function(data) {
 					return '<span class="truncate" title="'+data+'">'+data+'</span>';
 				}
@@ -232,6 +245,19 @@ $(document).ready(function() {
 			$('#manageTable tbody input.row-check').each(function(){ this.checked = checked; });
 			updateBulkBtn();
 		});
+
+		// initialize tooltips after each draw (Bootstrap tooltip assumed available)
+		manageTable.on('draw', function(){
+			$('[data-toggle="tooltip"]').tooltip({container: 'body'});
+		});
+
+		// move DataTables built-in filter into our header row placeholder
+		var dtFilter = $('#manageTable_filter');
+		if (dtFilter.length) {
+			dtFilter.appendTo('#filterSearchWrap');
+			dtFilter.find('input').addClass('form-control input-sm');
+			dtFilter.css({'margin-bottom':'0'});
+		}
 
 		$('#manageTable tbody').on('change', 'input.row-check', function(){ updateBulkBtn(); });
 

@@ -9,6 +9,12 @@ use App\Models\Model_users;
 
 class Dashboard extends Admin_Controller
 {
+    private const SALES_RANGE_OPTIONS = [
+        'today' => 'Today',
+        'month' => 'This Month',
+        'all' => 'All Time',
+    ];
+
     public function __construct()
     {
         $this->not_logged_in();
@@ -29,6 +35,7 @@ class Dashboard extends Admin_Controller
 
         $this->data['total_paid_orders'] = $ordersModel->countTotalPaidOrders();
         $this->data['total_unpaid_orders'] = $ordersModel->countTotalUnpaidOrders();
+        $this->data['recent_sales'] = $ordersModel->orderBy('id', 'DESC')->findAll(5);
 
         $this->data['total_users'] = $usersModel->countTotalUsers();
         $this->data['total_stores'] = $storesModel->countTotalStores();
@@ -39,7 +46,43 @@ class Dashboard extends Admin_Controller
         $groupName = strtolower((string) ($group['group_name'] ?? ''));
         $this->data['is_admin'] = ($groupId === 1) || (strpos($groupName, 'super') !== false);
 
+        $selectedRange = (string) ($this->request->getGet('sales_range') ?? 'month');
+        if (! array_key_exists($selectedRange, self::SALES_RANGE_OPTIONS)) {
+            $selectedRange = 'month';
+        }
+
+        [$fromTimestamp, $toTimestamp] = $this->resolveSalesRange($selectedRange);
+        $scopedStoreIds = $this->data['is_admin'] ? [] : $storesModel->getAssignedStoreIds($userId);
+
+        $this->data['sales_range'] = $selectedRange;
+        $this->data['sales_range_options'] = self::SALES_RANGE_OPTIONS;
+        $this->data['sales_range_label'] = self::SALES_RANGE_OPTIONS[$selectedRange];
+        $this->data['branch_phone_sales'] = $ordersModel->getSoldPhonesByStore($scopedStoreIds, $fromTimestamp, $toTimestamp);
+
         return $this->render_template('dashboard', $this->data);
+    }
+
+    private function resolveSalesRange(string $range): array
+    {
+        switch ($range) {
+            case 'today':
+                $from = strtotime('today');
+                $to = strtotime('tomorrow') - 1;
+                break;
+
+            case 'all':
+                $from = null;
+                $to = null;
+                break;
+
+            case 'month':
+            default:
+                $from = strtotime(date('Y-m-01 00:00:00'));
+                $to = strtotime(date('Y-m-t 23:59:59'));
+                break;
+        }
+
+        return [$from, $to];
     }
 
     public function memberProducts()

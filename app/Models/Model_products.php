@@ -105,6 +105,14 @@ class Model_products extends Model
         return (int) $this->where('date_added <', $cutoff)->countAllResults();
     }
 
+    public function getAgedProducts(int $minDays = 15): array
+    {
+        $cutoff = date('Y-m-d', strtotime('-' . (int) $minDays . ' days'));
+        return $this->where('date_added <', $cutoff)
+            ->orderBy('id', 'desc')
+            ->findAll();
+    }
+
     public function getTotalStockValue(): float
     {
         $row = $this->selectSum('price')

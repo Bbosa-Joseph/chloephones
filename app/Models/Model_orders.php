@@ -292,4 +292,70 @@ class Model_orders extends Model
     {
         return (int) $this->where('paid_status !=', 1)->countAllResults();
     }
+
+    public function getSoldPhonesByStore(array $storeIds = [], ?int $fromTimestamp = null, ?int $toTimestamp = null): array
+    {
+        $itemsTable = $this->getItemsTableName();
+        $hasReturnedFlag = $this->db->fieldExists('returned', $itemsTable);
+        $hasWarehouseSnapshot = $this->db->fieldExists('product_warehouse_id', $itemsTable);
+
+        $storeExpression = $hasWarehouseSnapshot
+            ? 'COALESCE(oi.product_warehouse_id, p.warehouse_id)'
+            : 'p.warehouse_id';
+
+        $subqueryConditions = ["{$storeExpression} IS NOT NULL"];
+        $subqueryParams = [];
+
+        if ($hasReturnedFlag) {
+            $subqueryConditions[] = 'oi.returned = 0';
+        }
+
+        if ($fromTimestamp !== null) {
+            $subqueryConditions[] = 'o.date_time >= ?';
+            $subqueryParams[] = $fromTimestamp;
+        }
+
+        if ($toTimestamp !== null) {
+            $subqueryConditions[] = 'o.date_time <= ?';
+            $subqueryParams[] = $toTimestamp;
+        }
+
+        $outerWhere = '';
+        $outerParams = [];
+        if (! empty($storeIds)) {
+            $placeholders = implode(',', array_fill(0, count($storeIds), '?'));
+            $subqueryConditions[] = "{$storeExpression} IN ({$placeholders})";
+            $subqueryParams = array_merge($subqueryParams, $storeIds);
+            $outerWhere = "WHERE s.id IN ({$placeholders})";
+            $outerParams = $storeIds;
+        }
+
+        $whereClause = implode(' AND ', $subqueryConditions);
+
+        $sql = "
+            SELECT
+                s.id,
+                s.name,
+                COALESCE(sold.phones_sold, 0) AS phones_sold,
+                COALESCE(sold.sales_value, 0) AS sales_value,
+                sold.last_sold_at
+            FROM stores s
+            LEFT JOIN (
+                SELECT
+                    {$storeExpression} AS store_id,
+                    COUNT(*) AS phones_sold,
+                    SUM(oi.amount) AS sales_value,
+                    MAX(o.date_time) AS last_sold_at
+                FROM {$itemsTable} oi
+                LEFT JOIN products p ON p.id = oi.product_id
+                LEFT JOIN orders o ON o.id = oi.order_id
+                WHERE {$whereClause}
+                GROUP BY {$storeExpression}
+            ) sold ON sold.store_id = s.id
+            {$outerWhere}
+            ORDER BY sold.phones_sold DESC, s.name ASC
+        ";
+
+        return $this->db->query($sql, array_merge($subqueryParams, $outerParams))->getResultArray();
+    }
 }

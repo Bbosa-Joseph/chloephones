@@ -11,12 +11,6 @@
 				</div>
 			</div>
 
-			<form action="#" method="get" class="sidebar-form ui-sidebar-search">
-				<div class="input-group">
-					<span class="input-group-addon"><i class="fa fa-search"></i></span>
-					<input type="text" name="q" class="form-control" placeholder="Search menu">
-				</div>
-			</form>
 		</div>
 
 		<ul class="sidebar-menu ui-sidebar-menu" data-widget="tree">
@@ -175,14 +169,6 @@
 			if ($(this).find('.treeview-menu li.active').length > 0) {
 				$(this).addClass('active');
 			}
-		});
-
-		$('.ui-sidebar-search .form-control').on('keyup', function(){
-			var term = $(this).val().toLowerCase();
-			$('.ui-sidebar-menu > li:not(.header)').each(function(){
-				var text = $(this).text().toLowerCase();
-				$(this).toggle(text.indexOf(term) !== -1);
-			});
 		});
 
 		$('.sidebar-menu a[href]').on('click', function(){

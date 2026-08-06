@@ -41,23 +41,9 @@
 					<div class="box-body">
 						<div class="table-responsive">
 
-						 <table id="manageTable" class="table table-hover modern-table">
-							<thead>
-							<tr>
-								<?php if(in_array('deleteOrder', $user_permission)): ?>
-									<th style="width:30px;"><input type="checkbox" id="selectAll"></th>
-								<?php endif; ?>
-								<th>Bill No.</th>
-								<th>Client</th>
-								<th>Contact</th>
-								<th>Amount</th>
-								<?php if(in_array('updateOrder', $user_permission) || in_array('viewOrder', $user_permission) || in_array('deleteOrder', $user_permission) || in_array('printOrder', $user_permission) || in_array('returnOrder', $user_permission)): ?>
-									<th>Actions</th>
-								<?php endif; ?>
-							</tr>
-							</thead>
-
-						</table>
+						<?= view('partials/tables/orders-table', [
+							'user_permission' => $user_permission,
+						]) ?>
 					</div>
 				</div>
 			</div>

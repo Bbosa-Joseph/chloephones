@@ -76,6 +76,62 @@ class Controller_Products extends Admin_Controller
 		return $this->response->setJSON($result);
 	}
 
+	/**
+	 * Return only aged products (in JSON for DataTables)
+	 */
+	public function fetchAgedProducts()
+	{
+		if (!in_array('viewProduct', $this->permission)) {
+			return $this->response->setJSON(['data' => []]);
+		}
+
+		$result = ['data' => []];
+		$productsModel = new Model_products();
+		$storesModel = new Model_stores();
+		$warehouseMap = [];
+		foreach ($this->getAccessibleWarehouses($storesModel) as $store) {
+			$warehouseMap[(int) $store['id']] = $store['name'] ?? '';
+		}
+
+		$data = $this->getAccessibleProducts($productsModel, $storesModel);
+		// filter for aged items (>= 15 days)
+		$filtered = [];
+		$cutoff = date('Y-m-d', strtotime('-15 days'));
+		foreach ($data as $item) {
+			if (!empty($item['date_added']) && $item['date_added'] < $cutoff) {
+				$filtered[] = $item;
+			}
+		}
+		$data = $filtered;
+		foreach ($data as $key => $value) {
+			$buttons = '';
+			if (in_array('updateProduct', $this->permission)) {
+				$buttons .= '<a href="' . base_url('Controller_Products/update/' . $value['id']) . '" class="btn btn-warning btn-sm"><i class="fa fa-pencil"></i></a>';
+			}
+			if (in_array('printProduct', $this->permission)) {
+				$buttons .= ' <a href="' . base_url('Controller_Products/printProduct/' . $value['id']) . '" class="btn btn-primary btn-sm" title="Print"><i class="fa fa-print"></i></a>';
+			}
+
+			$availability = ((int) $value['availability'] === 1) ? 'In Stock' : 'Out of Stock';
+			$warehouseName = 'Unassigned';
+			if (!empty($value['warehouse_id'])) {
+				$warehouseName = $warehouseMap[(int) $value['warehouse_id']] ?? 'Unassigned';
+			}
+
+			$result['data'][$key] = [
+				'id' => $value['id'],
+				'name' => $value['name'],
+				'imei' => $value['imei'],
+				'warehouse' => $warehouseName,
+				'availability' => $availability,
+				'date_added' => $value['date_added'] ?? '',
+				'actions' => $buttons,
+			];
+		}
+
+		return $this->response->setJSON($result);
+	}
+
 	public function printProduct($productId)
 	{
 		if (!in_array('printProduct', $this->permission)) {

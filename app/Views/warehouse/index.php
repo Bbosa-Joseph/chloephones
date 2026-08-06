@@ -34,21 +34,9 @@
 				<div class="box">
 					<div class="box-body">
 						<div class="table-responsive">
-						<table id="manageTable" class="table table-bordered table-hover table-striped">
-							<thead>
-								<tr>
-									<th>Warehouse</th>
-									<th>Assigned User</th>
-									<th>Total Stock</th>
-									<th>Total Value</th>
-									<th>Status</th>
-									<?php if(in_array('updateStore', $user_permission) || in_array('deleteStore', $user_permission)): ?>
-										<th>Action</th>
-									<?php endif; ?>
-								</tr>
-							</thead>
-
-						</table>
+						<?= view('partials/tables/warehouses-table', [
+							'user_permission' => $user_permission,
+						]) ?>
 						</div>
 					</div>
 				</div>
