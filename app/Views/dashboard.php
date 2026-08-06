@@ -77,7 +77,7 @@ if (!function_exists('dashboard_format_datetime')) {
 ?>
 
 <!-- Dashboard theme -->
-<link rel="stylesheet" href="<?php echo base_url('assets/css/dashboard.css'); ?>">
+<link rel="stylesheet" href="<?php echo base_url('assets/css/dashboard.css'); ?>?v=<?php echo @filemtime(FCPATH . 'assets/css/dashboard.css'); ?>">
 
 <div class="content-wrapper">
     <section class="content-header dashboard-header">
