@@ -77,8 +77,105 @@ if (!function_exists('dashboard_format_datetime')) {
 ?>
 
 <?php
-$dashboardCssPath = FCPATH . 'assets/css/dashboard.css';
-$dashboardCssInline = is_file($dashboardCssPath) ? (string) file_get_contents($dashboardCssPath) : '';
+$dashboardCssInline = '';
+$dashboardCssCandidates = [
+    FCPATH . 'assets/css/dashboard.css',
+    ROOTPATH . 'public/assets/css/dashboard.css',
+    APPPATH . '../public/assets/css/dashboard.css',
+];
+
+foreach ($dashboardCssCandidates as $cssPath) {
+    if (is_file($cssPath)) {
+        $dashboardCssInline = (string) file_get_contents($cssPath);
+        if ($dashboardCssInline !== '') {
+            break;
+        }
+    }
+}
+
+if ($dashboardCssInline === '') {
+    $dashboardCssInline = <<<'CSS'
+.dashboard-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+}
+
+.dashboard-quick-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    min-height: 150px;
+    padding: 28px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-quick-card .title {
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.9;
+}
+
+.dashboard-quick-card .value {
+    margin-top: 12px;
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.dashboard-quick-label {
+    margin-left: 16px;
+    align-self: center;
+    text-align: right;
+    white-space: nowrap;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.dashboard-quick-actions .glass-card--blue {
+    background: linear-gradient(135deg, #082f84 0%, #1d4ed8 40%, #0369a1 100%);
+}
+
+.dashboard-quick-actions .glass-card--teal {
+    background: linear-gradient(135deg, #134e4a 0%, #0f766e 40%, #0e7490 100%);
+}
+
+.dashboard-quick-actions .glass-card--indigo {
+    background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 42%, #4f46e5 100%);
+}
+
+@media (max-width: 992px) {
+    .dashboard-quick-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-quick-card {
+        min-height: 120px;
+    }
+
+    .dashboard-quick-card .value {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-quick-card {
+        padding: 20px;
+    }
+}
+CSS;
+}
 ?>
 
 <!-- Dashboard theme -->
