@@ -79,8 +79,7 @@ if (!function_exists('dashboard_format_datetime')) {
 <?php
 $dashboardCssPath = FCPATH . 'assets/css/dashboard.css';
 $dashboardCssVersion = is_file($dashboardCssPath) ? (string) filemtime($dashboardCssPath) : (string) time();
-$isProduction = defined('ENVIRONMENT') && ENVIRONMENT === 'production';
-$dashboardCssInline = ($isProduction && is_file($dashboardCssPath)) ? (string) file_get_contents($dashboardCssPath) : '';
+$dashboardCssInline = is_file($dashboardCssPath) ? (string) file_get_contents($dashboardCssPath) : '';
 ?>
 
 <!-- Dashboard theme -->
