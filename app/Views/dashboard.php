@@ -78,12 +78,10 @@ if (!function_exists('dashboard_format_datetime')) {
 
 <?php
 $dashboardCssPath = FCPATH . 'assets/css/dashboard.css';
-$dashboardCssVersion = is_file($dashboardCssPath) ? (string) filemtime($dashboardCssPath) : (string) time();
 $dashboardCssInline = is_file($dashboardCssPath) ? (string) file_get_contents($dashboardCssPath) : '';
 ?>
 
 <!-- Dashboard theme -->
-<link rel="stylesheet" href="<?php echo base_url('assets/css/dashboard.css'); ?>?v=<?php echo esc($dashboardCssVersion); ?>">
 <?php if ($dashboardCssInline !== ''): ?>
 <style id="dashboard-inline-css-fallback">
 <?php echo $dashboardCssInline; ?>
